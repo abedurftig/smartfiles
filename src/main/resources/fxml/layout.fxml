@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+      onDragDropped="#handleDragDropped" onDragOver="#handleDragOver"
+      prefHeight="600.0" prefWidth="900.0"
+      fx:controller="dev.arne.smartfiles.ui.controller.ApplicationUiController">
+    <MenuBar VBox.vgrow="NEVER">
+        <Menu mnemonicParsing="false" text="Settings">
+            <MenuItem mnemonicParsing="false" text="Edit" />
+        </Menu>
+    </MenuBar>
+    <SplitPane dividerPositions="0.18" VBox.vgrow="ALWAYS">
+        <VBox VBox.vgrow="ALWAYS">
+            <Label text="Documents"/>
+            <Separator />
+            <ListView fx:id="documentList" VBox.vgrow="ALWAYS"/>
+        </VBox>
+        <SplitPane dividerPositions="0.77">
+            <VBox VBox.vgrow="ALWAYS">
+                <children>
+                    <Label fx:id="documentName"/>
+                    <Separator />
+                    <Pane fx:id="documentPane" VBox.vgrow="ALWAYS">
+
+                    </Pane>
+                </children>
+            </VBox>
+            <VBox VBox.vgrow="ALWAYS">
+                <Label text="Find Document"/>
+                <Separator />
+                <TextField fx:id="searchTextField" promptText="Search" />
+                <ListView fx:id="tagFilterList" VBox.vgrow="ALWAYS" />
+            </VBox>
+        </SplitPane>
+    </SplitPane>
+</VBox>
