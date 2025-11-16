@@ -13,4 +13,6 @@ public interface FileService {
     List<ArchiveEntry> getAll();
 
     ArchiveEntry retrieveFileDetails(UUID id);
+
+    File getFile(UUID id);
 }

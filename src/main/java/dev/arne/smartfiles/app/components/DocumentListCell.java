@@ -1,0 +1,45 @@
+package dev.arne.smartfiles.app.components;
+
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.layout.VBox;
+
+public class DocumentListCell extends ListCell<DocumentListCell.ListItem> {
+
+    private final Label title = new Label();
+    private final Label detail = new Label();
+    private final VBox layout = new VBox(title, detail);
+
+    private DocumentListCell() {
+        super();
+        this.getStyleClass().add("sf-document-list-item");
+        title.setStyle("-fx-font-size: 14px;");
+        detail.setStyle("-fx-font-size: 11px;");
+        layout.setAlignment(Pos.CENTER_LEFT);
+    }
+
+    @Override
+    protected void updateItem(DocumentListCell.ListItem item, boolean empty) {
+        super.updateItem(item, empty);
+
+        setText(null);
+
+        if (empty || item == null || item.text() == null) {
+            title.setText(null);
+            detail.setText(null);
+            setGraphic(null);
+        } else {
+            title.setText(item.text());
+            detail.setText(item.text());
+            setGraphic(layout);
+        }
+    }
+
+    public static DocumentListCell createDocumentListCell() {
+        return new DocumentListCell();
+    }
+
+    public record ListItem(String text, String detail, String value) {
+    }
+}

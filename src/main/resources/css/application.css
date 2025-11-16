@@ -1,0 +1,30 @@
+.sf-tool-bar {
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.sf-outer-vbox {
+    -fx-border-width: 1px;
+    -fx-border-style: solid;
+    -fx-border-color: #FFFF00;
+}
+
+.sf-padding {
+    -fx-padding: 4px;
+}
+
+.sf-document-list {
+    -fx-border-width: 0px;
+    -fx-border-style: hidden;
+}
+
+.sf-tag-filter-list {
+    -fx-border-width: 0px;
+    -fx-border-style: hidden;
+}
+
+.sf-document-list-item {
+    -fx-padding: 0px;
+}
+
+.sf-area-label {
+}

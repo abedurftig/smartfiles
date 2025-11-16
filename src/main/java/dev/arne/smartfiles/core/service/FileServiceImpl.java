@@ -39,12 +39,14 @@ public class FileServiceImpl implements FileService, ApplicationListener<Applica
     private final ObjectMapper objectMapper;
     private final ApplicationEventPublisher publisher;
 
-    private Archive archive;
+    private final Archive archive;
 
     public FileServiceImpl(SmartFilesConfiguration configuration, ObjectMapper objectMapper, ApplicationEventPublisher publisher) {
         this.configuration = configuration;
         this.objectMapper = objectMapper;
         this.publisher = publisher;
+        makeSureRootDirectoryExists();
+        this.archive = readFromDisk();
     }
 
     @Override
@@ -72,6 +74,15 @@ public class FileServiceImpl implements FileService, ApplicationListener<Applica
 
     @Override
     public ArchiveEntry retrieveFileDetails(UUID id) {
+        return archive.getArchiveEntries().get(id);
+    }
+
+    @Override
+    public File getFile(UUID id) {
+        var entry = retrieveFileDetails(id);
+        if (entry != null) {
+            return new File(entry.getAbsolutePath());
+        }
         return null;
     }
 
@@ -79,8 +90,8 @@ public class FileServiceImpl implements FileService, ApplicationListener<Applica
     public void onApplicationEvent(ApplicationEvent event) {
 
         if ("ApplicationStartedEvent".equals(event.getClass().getSimpleName())) {
-            makeSureRootDirectoryExists();
-            archive = readFromDisk();
+//            makeSureRootDirectoryExists();
+//            archive = readFromDisk();
         } else if ("ContextClosedEvent".equals(event.getClass().getSimpleName())) {
             writeToDisk(archive);
         }
