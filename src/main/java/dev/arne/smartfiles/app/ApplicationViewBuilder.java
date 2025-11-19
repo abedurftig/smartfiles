@@ -37,12 +37,12 @@ public class ApplicationViewBuilder implements Builder<Region> {
     private final FileService fileService;
 
     private Label documentName;
-    private Button settingsButton;
     private TextField searchTextField;
     private TextField newTagTextField;
     private ListView<DocumentListCell.ListItem> documentList;
     private ScrollPane documentPane;
     private ImageView imageView;
+    private Dialog<String> dialog;
 
     public ApplicationViewBuilder(ApplicationModel model, ApplicationInteractor interactor, FileService fileService) {
         this.model = model;
@@ -52,6 +52,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
     @Override
     public Region build() {
+        initDialog();
         return createRoot();
     }
 
@@ -66,34 +67,26 @@ public class ApplicationViewBuilder implements Builder<Region> {
     private ToolBar createToolBar() {
         var toolBar = new ToolBar();
         toolBar.getStyleClass().add("sf-tool-bar");
+        toolBar.getItems().add(createThemeToggleButton());
+        toolBar.getItems().add(createSettingsDialogAndButton());
+        return toolBar;
+    }
 
+    private Button createThemeToggleButton() {
         logger.info("lightModeActivated: {}", model.isLightModeActivated());
-
-        var lightButton = new Button("", new FontIcon("ci-awake"));
-//        lightButton.visibleProperty().bind(model.lightModeActivatedProperty().not());
-        lightButton.setOnAction(e -> {
-            model.setLightModeActivated(!model.isLightModeActivated());
-            logger.info("button clicked: {}", model.isLightModeActivated());
+        var iconCode = model.isLightModeActivated() ? "ci-asleep" : "ci-awake";
+        var themeToggleButton = new Button("", new FontIcon(iconCode));
+        themeToggleButton.setOnAction(e -> {
+            model.toggleTheme();
             if (model.isLightModeActivated()) {
-                lightButton.setGraphic(new FontIcon("ci-asleep"));
+                themeToggleButton.setGraphic(new FontIcon("ci-asleep"));
                 SmartFilesApp.setLightTheme();
             } else {
-                lightButton.setGraphic(new FontIcon("ci-awake"));
+                themeToggleButton.setGraphic(new FontIcon("ci-awake"));
                 SmartFilesApp.setDarkTheme();
             }
-
         });
-        toolBar.getItems().add(lightButton);
-
-//        var darkButton = new Button("", new FontIcon("ci-asleep"));
-//        darkButton.visibleProperty().bind(model.lightModeActivatedProperty());
-//        darkButton.setOnAction(e -> { model.setLightModeActivated(false); });
-//        toolBar.getItems().add(darkButton);
-
-        settingsButton = new Button("", new FontIcon("ci-settings"));
-        settingsButton.setOnAction(e -> createSettingsDialog());
-        toolBar.getItems().add(settingsButton);
-        return toolBar;
+        return themeToggleButton;
     }
 
     private SplitPane createLeft() {
@@ -232,17 +225,23 @@ public class ApplicationViewBuilder implements Builder<Region> {
         VBox.setVgrow(node, Priority.ALWAYS);
     }
 
-    private void createSettingsDialog() {
-        //Showing the dialog on clicking the button
+    private Button createSettingsDialogAndButton() {
+        var settingsButton = new Button("", new FontIcon("ci-settings"));
         settingsButton.setOnAction(e -> {
-            Dialog<String> dialog = new Dialog<>();
-            dialog.initModality(Modality.WINDOW_MODAL);
-            dialog.setTitle("Settings");
-            ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-            dialog.setContentText("This is a sample dialog");
-            dialog.getDialogPane().getButtonTypes().add(type);
-            dialog.showAndWait();
+            if (!dialog.isShowing()) {
+                dialog.showAndWait();
+            }
         });
+        return settingsButton;
+    }
+
+    private void initDialog() {
+        dialog = new Dialog<String>();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Settings");
+        ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
+        dialog.setContentText("This is a sample dialog");
+        dialog.getDialogPane().getButtonTypes().add(type);
     }
 
     public void handleDragOver(DragEvent event) {

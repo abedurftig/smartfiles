@@ -37,6 +37,11 @@ public class ApplicationModel {
         this.lightModeActivated.set(lightModeActivated);
     }
 
+    public void toggleTheme() {
+        setLightModeActivated(!isLightModeActivated());
+        isLightModeActivated();
+    }
+
     private final SimpleListProperty<DocumentListCell.ListItem> documentsProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
