@@ -1,18 +1,17 @@
 package dev.arne.smartfiles.core;
 
-import dev.arne.smartfiles.core.model.ArchiveEntry;
-
-import java.io.File;
-import java.util.List;
-import java.util.UUID;
+import dev.arne.smartfiles.core.model.ApplicationSettings;
+import dev.arne.smartfiles.core.model.Archive;
 
 public interface FileService {
 
-    List<ArchiveEntry> manageFiles(List<File> files);
+    String getTenantDirectory();
 
-    List<ArchiveEntry> getAll();
+    ApplicationSettings loadApplicationSettings();
 
-    ArchiveEntry retrieveFileDetails(UUID id);
+    void saveApplicationSettings(ApplicationSettings settings);
 
-    File getFile(UUID id);
+    Archive loadArchive();
+
+    void saveArchive(Archive archive);
 }

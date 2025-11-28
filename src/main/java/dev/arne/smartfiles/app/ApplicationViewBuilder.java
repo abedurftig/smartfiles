@@ -4,7 +4,8 @@ import atlantafx.base.theme.Styles;
 import dev.arne.smartfiles.SmartFilesApp;
 import dev.arne.smartfiles.app.components.DocumentListCell;
 import dev.arne.smartfiles.app.pdf.PdfImageRenderer;
-import dev.arne.smartfiles.core.FileService;
+import dev.arne.smartfiles.core.ArchiveService;
+import dev.arne.smartfiles.core.SettingsService;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -33,8 +34,8 @@ public class ApplicationViewBuilder implements Builder<Region> {
     private final static int VBOX_SPACING = 3;
 
     private final ApplicationModel model;
-    private final ApplicationInteractor interactor;
-    private final FileService fileService;
+    private final SettingsService settingsService;
+    private final ArchiveService fileService;
 
     private Label documentName;
     private TextField searchTextField;
@@ -44,15 +45,16 @@ public class ApplicationViewBuilder implements Builder<Region> {
     private ImageView imageView;
     private Dialog<String> dialog;
 
-    public ApplicationViewBuilder(ApplicationModel model, ApplicationInteractor interactor, FileService fileService) {
+    public ApplicationViewBuilder(ApplicationModel model, SettingsService settingsService, ArchiveService archiveService) {
         this.model = model;
-        this.interactor = interactor;
-        this.fileService = fileService;
+        this.settingsService = settingsService;
+        this.fileService = archiveService;
     }
 
     @Override
     public Region build() {
         initDialog();
+        activeTheme();
         return createRoot();
     }
 
@@ -77,7 +79,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
         var iconCode = model.isLightModeActivated() ? "ci-asleep" : "ci-awake";
         var themeToggleButton = new Button("", new FontIcon(iconCode));
         themeToggleButton.setOnAction(e -> {
-            model.toggleTheme();
+            settingsService.toggleLightThemeActive();
             if (model.isLightModeActivated()) {
                 themeToggleButton.setGraphic(new FontIcon("ci-asleep"));
                 SmartFilesApp.setLightTheme();
@@ -164,7 +166,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
     private VBox createCenterContent() {
         var vBox = createVBoxColumn();
         documentName = createAreaLabel("Document name");
-        documentName.textProperty().bind(model.selectedDocumentNameProperty());
+        documentName.textProperty().bind(model.getSelectedDocumentNameProperty());
 
         imageView = new ImageView();
         imageView.setPreserveRatio(true);
@@ -199,7 +201,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
     private VBox createRightBottom() {
         var vBox = createVBoxColumn();
-        vBox.disableProperty().bind(model.selectedDocumentNameProperty().isNull());
+        vBox.disableProperty().bind(model.getSelectedDocumentNameProperty().isNull());
         newTagTextField = new TextField();
         newTagTextField.setPromptText("Add tag");
         vBox.getChildren().add(createAreaLabel("Document details"));
@@ -235,8 +237,16 @@ public class ApplicationViewBuilder implements Builder<Region> {
         return settingsButton;
     }
 
+    private void activeTheme() {
+        if (model.isLightModeActivated()) {
+            SmartFilesApp.setLightTheme();
+        } else {
+            SmartFilesApp.setDarkTheme();
+        }
+    }
+
     private void initDialog() {
-        dialog = new Dialog<String>();
+        dialog = new Dialog<>();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Settings");
         ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);

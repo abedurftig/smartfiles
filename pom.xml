@@ -10,6 +10,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
+        <java.version>25</java.version>
         <lombok.version>1.18.42</lombok.version>
         <javafx.version>25</javafx.version>
     </properties>

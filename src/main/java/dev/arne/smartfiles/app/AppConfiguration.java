@@ -1,6 +1,7 @@
 package dev.arne.smartfiles.app;
 
-import dev.arne.smartfiles.core.FileService;
+import dev.arne.smartfiles.core.ArchiveService;
+import dev.arne.smartfiles.core.SettingsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -8,9 +9,10 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfiguration {
 
     @Bean
-    public ApplicationModel applicationModel(FileService fileService) {
+    public ApplicationModel applicationModel(SettingsService settingsService, ArchiveService archiveService) {
         var model = new ApplicationModel();
-        model.setDocumentsFromArchiveEntries(fileService.getAll());
+        model.setLightModeActivated(settingsService.isLightThemeActive());
+        model.setDocumentsFromArchiveEntries(archiveService.getAll());
         return model;
     }
 
@@ -22,10 +24,10 @@ public class AppConfiguration {
     @Bean
     public ApplicationViewBuilder applicationViewBuilder(
             ApplicationModel model,
-            ApplicationInteractor interactor,
-            FileService fileService
+            SettingsService settingsService,
+            ArchiveService archiveService
     ) {
-        return new ApplicationViewBuilder(model, interactor, fileService);
+        return new ApplicationViewBuilder(model, settingsService, archiveService);
     }
 
     @Bean

@@ -15,8 +15,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @AllArgsConstructor
-@NoArgsConstructor
-public class Archive {
+//@NoArgsConstructor
+public final class Archive implements AggregateRoot {
 
     private String applicationVersion;
     private LocalDateTime dateCreated;
@@ -26,7 +26,7 @@ public class Archive {
 
     public static Archive empty() {
         var timeStamp = LocalDateTime.now();
-        return new Archive("0.0.1", timeStamp, timeStamp, new HashMap<>(), Set.of());
+        return new Archive(CURRENT_APP_VERSION, timeStamp, timeStamp, new HashMap<>(), Set.of());
     }
 
     public ArchiveEntry addArchiveEntryFromFile(File file, String originalPath) {

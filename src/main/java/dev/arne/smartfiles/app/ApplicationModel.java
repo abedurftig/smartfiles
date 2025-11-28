@@ -4,29 +4,26 @@ import dev.arne.smartfiles.app.components.DocumentListCell;
 import dev.arne.smartfiles.core.model.ArchiveEntry;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 public class ApplicationModel {
 
-    private final StringProperty selectedDocumentName = new SimpleStringProperty(null);
+    private final StringProperty selectedDocumentNameProperty = new SimpleStringProperty(null);
+    private final BooleanProperty lightModeActivated = new SimpleBooleanProperty(false);
+    private final SimpleListProperty<DocumentListCell.ListItem> documentsProperty =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
 
     public String getSelectedDocumentName() {
-        return selectedDocumentName.get();
-    }
-
-    public StringProperty selectedDocumentNameProperty() {
-        return selectedDocumentName;
+        return selectedDocumentNameProperty.get();
     }
 
     public void setSelectedDocumentName(String selectedDocumentName) {
-        this.selectedDocumentName.set(selectedDocumentName);
-    }
-
-    private final BooleanProperty lightModeActivated = new SimpleBooleanProperty(false);
-
-    public BooleanProperty lightModeActivatedProperty() {
-        return lightModeActivated;
+        selectedDocumentNameProperty.setValue(selectedDocumentName);
     }
 
     public boolean isLightModeActivated() {
@@ -39,11 +36,7 @@ public class ApplicationModel {
 
     public void toggleTheme() {
         setLightModeActivated(!isLightModeActivated());
-        isLightModeActivated();
     }
-
-    private final SimpleListProperty<DocumentListCell.ListItem> documentsProperty =
-            new SimpleListProperty<>(FXCollections.observableArrayList());
 
     public void setDocumentsFromArchiveEntries(List<ArchiveEntry> archiveEntries) {
         var items = archiveEntries.stream().map(this::archiveEntryToListItem).toList();
@@ -56,9 +49,5 @@ public class ApplicationModel {
 
     private DocumentListCell.ListItem archiveEntryToListItem(ArchiveEntry entry) {
         return new DocumentListCell.ListItem(entry.getName(), entry.getSummary(), entry.getId().toString());
-    }
-
-    public SimpleListProperty<DocumentListCell.ListItem> getDocumentsProperty() {
-        return documentsProperty;
     }
 }

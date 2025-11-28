@@ -16,7 +16,7 @@ public class SmartFilesConfiguration {
     private String rootDirectory = System.getProperty("user.home") + FileSystems.getDefault().getSeparator() +".smartfiles";
     private String tenantId = "root";
 
-    public String getCurrentDirectory() {
+    public String getTenantDirectory() {
         return rootDirectory + FileSystems.getDefault().getSeparator() + tenantId;
     }
 }

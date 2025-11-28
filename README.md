@@ -10,9 +10,9 @@ Access any file from the past in now time. Leverage local LLM models to help to 
 - [x] Add files per Drag & Drop
 - [x] Show list with managed files
 - [x] Render the first page of selected document
-- [ ] Rename from SmartFiles to SmartArchive
-- [ ] Persist parts of the ApplicationModel on dist an read it together with the Archive
-  - [ ] Like the selected theme
+- [ ] ~~Rename from SmartFiles to SmartArchive~~
+- [X] Persist parts of the ApplicationModel on disk and read it together with the Archive
+  - [X] Like the selected theme
 - [ ] Add a tag to a document
 - [ ] Render all pages of a document
 - [ ] Show name, date and tags in Document details

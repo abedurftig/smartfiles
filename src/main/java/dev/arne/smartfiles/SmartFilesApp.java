@@ -43,8 +43,6 @@ public class SmartFilesApp extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         var controller = context.getBean(ApplicationController.class);
-        Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
-        Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
         primaryStage.setScene(createScene(controller));
         primaryStage.show();
     }
