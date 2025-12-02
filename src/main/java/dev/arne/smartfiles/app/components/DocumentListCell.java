@@ -1,11 +1,12 @@
 package dev.arne.smartfiles.app.components;
 
+import dev.arne.smartfiles.core.model.ArchiveEntry;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.VBox;
 
-public class DocumentListCell extends ListCell<DocumentListCell.ListItem> {
+public class DocumentListCell extends ListCell<ArchiveEntry> {
 
     private final Label title = new Label();
     private final Label detail = new Label();
@@ -20,26 +21,23 @@ public class DocumentListCell extends ListCell<DocumentListCell.ListItem> {
     }
 
     @Override
-    protected void updateItem(DocumentListCell.ListItem item, boolean empty) {
+    protected void updateItem(ArchiveEntry item, boolean empty) {
         super.updateItem(item, empty);
 
         setText(null);
 
-        if (empty || item == null || item.text() == null) {
+        if (empty || item == null || item.getName() == null) {
             title.setText(null);
             detail.setText(null);
             setGraphic(null);
         } else {
-            title.setText(item.text());
-            detail.setText(item.text());
+            title.setText(item.getName());
+            detail.setText(item.getSummary());
             setGraphic(layout);
         }
     }
 
     public static DocumentListCell createDocumentListCell() {
         return new DocumentListCell();
-    }
-
-    public record ListItem(String text, String detail, String value) {
     }
 }

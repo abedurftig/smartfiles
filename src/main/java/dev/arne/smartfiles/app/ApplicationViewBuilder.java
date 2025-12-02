@@ -6,6 +6,7 @@ import dev.arne.smartfiles.app.components.DocumentListCell;
 import dev.arne.smartfiles.app.pdf.PdfImageRenderer;
 import dev.arne.smartfiles.core.ArchiveService;
 import dev.arne.smartfiles.core.SettingsService;
+import dev.arne.smartfiles.core.model.ArchiveEntry;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -40,7 +41,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
     private Label documentName;
     private TextField searchTextField;
     private TextField newTagTextField;
-    private ListView<DocumentListCell.ListItem> documentList;
+    private ListView<ArchiveEntry> documentList;
     private ScrollPane documentPane;
     private ImageView imageView;
     private Dialog<String> dialog;
@@ -133,13 +134,13 @@ public class ApplicationViewBuilder implements Builder<Region> {
         return vBox;
     }
 
-    private void selectDocumentFromListItem(DocumentListCell.ListItem selectedItem) {
+    private void selectDocumentFromListItem(ArchiveEntry selectedItem) {
 
-        if (selectedItem == null || selectedItem.value() == null) {
+        if (selectedItem == null) {
             clearSelectedDocument();
         } else {
-            model.setSelectedDocumentName(selectedItem.text());
-            var file = fileService.getFile(UUID.fromString(selectedItem.value()));
+            model.setSelectedDocument(selectedItem);
+            var file = fileService.getFile(selectedItem.getId());
             try {
                 var renderer = new PdfImageRenderer(file);
                 imageView.setImage(renderer.renderPage(0));

@@ -15,15 +15,14 @@ public class ApplicationModel {
 
     private final StringProperty selectedDocumentNameProperty = new SimpleStringProperty(null);
     private final BooleanProperty lightModeActivated = new SimpleBooleanProperty(false);
-    private final SimpleListProperty<DocumentListCell.ListItem> documentsProperty =
+    private final SimpleListProperty<ArchiveEntry> documentsProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
-    public String getSelectedDocumentName() {
-        return selectedDocumentNameProperty.get();
-    }
+    private final ObjectProperty<ArchiveEntry> selectedDocumentProperty = new SimpleObjectProperty<>();
 
-    public void setSelectedDocumentName(String selectedDocumentName) {
-        selectedDocumentNameProperty.setValue(selectedDocumentName);
+    public void setSelectedDocument(ArchiveEntry selectedDocument) {
+        selectedDocumentProperty.setValue(selectedDocument);
+        selectedDocumentNameProperty.setValue(selectedDocument.getName());
     }
 
     public boolean isLightModeActivated() {
@@ -34,20 +33,11 @@ public class ApplicationModel {
         this.lightModeActivated.set(lightModeActivated);
     }
 
-    public void toggleTheme() {
-        setLightModeActivated(!isLightModeActivated());
-    }
-
     public void setDocumentsFromArchiveEntries(List<ArchiveEntry> archiveEntries) {
-        var items = archiveEntries.stream().map(this::archiveEntryToListItem).toList();
-        documentsProperty.addAll(items);
+        documentsProperty.addAll(archiveEntries);
     }
 
     public void addDocumentFromArchiveEntry(ArchiveEntry archiveEntry) {
-        documentsProperty.addAll(archiveEntryToListItem(archiveEntry));
-    }
-
-    private DocumentListCell.ListItem archiveEntryToListItem(ArchiveEntry entry) {
-        return new DocumentListCell.ListItem(entry.getName(), entry.getSummary(), entry.getId().toString());
+        documentsProperty.addAll(archiveEntry);
     }
 }
