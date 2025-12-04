@@ -3,6 +3,7 @@ package dev.arne.smartfiles.app;
 import atlantafx.base.theme.Styles;
 import dev.arne.smartfiles.SmartFilesApp;
 import dev.arne.smartfiles.app.components.DocumentListCell;
+import dev.arne.smartfiles.app.components.WrappingListView;
 import dev.arne.smartfiles.app.pdf.PdfImageRenderer;
 import dev.arne.smartfiles.core.ArchiveService;
 import dev.arne.smartfiles.core.SettingsService;
@@ -26,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.UUID;
 
 public class ApplicationViewBuilder implements Builder<Region> {
 
@@ -36,7 +36,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
     private final ApplicationModel model;
     private final SettingsService settingsService;
-    private final ArchiveService fileService;
+    private final ArchiveService archiveService;
 
     private Label documentName;
     private TextField searchTextField;
@@ -49,7 +49,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
     public ApplicationViewBuilder(ApplicationModel model, SettingsService settingsService, ArchiveService archiveService) {
         this.model = model;
         this.settingsService = settingsService;
-        this.fileService = archiveService;
+        this.archiveService = archiveService;
     }
 
     @Override
@@ -140,7 +140,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
             clearSelectedDocument();
         } else {
             model.setSelectedDocument(selectedItem);
-            var file = fileService.getFile(selectedItem.getId());
+            var file = archiveService.getFile(selectedItem.getId());
             try {
                 var renderer = new PdfImageRenderer(file);
                 imageView.setImage(renderer.renderPage(0));
@@ -205,8 +205,16 @@ public class ApplicationViewBuilder implements Builder<Region> {
         vBox.disableProperty().bind(model.getSelectedDocumentNameProperty().isNull());
         newTagTextField = new TextField();
         newTagTextField.setPromptText("Add tag");
+        newTagTextField.setOnAction(e -> {
+            logger.info("Adding tag: {}", newTagTextField.getText());
+            archiveService.addTag(model.getSelectedDocumentId(), newTagTextField.getText());
+            newTagTextField.clear();
+        });
         vBox.getChildren().add(createAreaLabel("Document details"));
         vBox.getChildren().add(newTagTextField);
+
+        vBox.getChildren().add(createAreaLabel("Tags"));
+        vBox.getChildren().add(new WrappingListView(model.getTagsProperty()));
         return vBox;
     }
 
@@ -266,7 +274,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
         Dragboard db = event.getDragboard();
         boolean success = false;
         if (db.hasFiles()) {
-            fileService.manageFiles(db.getFiles());
+            archiveService.manageFiles(db.getFiles());
             success = true;
         }
         event.setDropCompleted(success);

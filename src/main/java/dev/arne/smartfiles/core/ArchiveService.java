@@ -15,4 +15,6 @@ public interface ArchiveService {
     ArchiveEntry retrieveFileDetails(UUID id);
 
     File getFile(UUID id);
+
+    void addTag(UUID selectedDocumentId, String text);
 }

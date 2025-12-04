@@ -3,7 +3,7 @@ package dev.arne.smartfiles.core.service;
 import dev.arne.smartfiles.core.FileService;
 import dev.arne.smartfiles.core.SettingsService;
 import dev.arne.smartfiles.core.model.ApplicationSettings;
-import dev.arne.smartfiles.core.model.LightThemeActivatedSettingChangedEvent;
+import dev.arne.smartfiles.core.events.LightThemeActivatedSettingChangedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextClosedEvent;

@@ -2,9 +2,11 @@ package dev.arne.smartfiles.core.service;
 
 import dev.arne.smartfiles.core.ArchiveService;
 import dev.arne.smartfiles.core.FileService;
+import dev.arne.smartfiles.core.events.DocumentTagAddedEvent;
 import dev.arne.smartfiles.core.model.Archive;
 import dev.arne.smartfiles.core.model.ArchiveEntry;
-import dev.arne.smartfiles.core.model.ArchiveEntryAddedEvent;
+import dev.arne.smartfiles.core.events.ArchiveEntryAddedEvent;
+import dev.arne.smartfiles.core.model.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -71,6 +73,14 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
             return new File(entry.getAbsolutePath());
         }
         return null;
+    }
+
+    @Override
+    public void addTag(UUID selectedDocumentId, String text) {
+        var entry = archive.getArchiveEntries().get(selectedDocumentId);
+        var newTag = new Tag(text);
+        entry.getTags().add(newTag);
+        publisher.publishEvent(new DocumentTagAddedEvent(newTag, selectedDocumentId));
     }
 
     @Override

@@ -53,13 +53,32 @@ public class SmartFilesApp extends Application {
         return scene;
     }
 
+//    public static void setLightTheme() {
+//        Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
+//    }
+//
+//    public static void setDarkTheme() {
+//        Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
+//    }
+
+    private static void setThemeWithContext(Runnable themeOperation) {
+        ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(SmartFilesApp.class.getClassLoader());
+            themeOperation.run();
+        } finally {
+            Thread.currentThread().setContextClassLoader(originalClassLoader);
+        }
+    }
+
     public static void setLightTheme() {
-        Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet());
+        setThemeWithContext(() -> Application.setUserAgentStylesheet(new CupertinoLight().getUserAgentStylesheet()));
     }
 
     public static void setDarkTheme() {
-        Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet());
+        setThemeWithContext(() -> Application.setUserAgentStylesheet(new CupertinoDark().getUserAgentStylesheet()));
     }
+
 
     public static void main(String[] args) {
         launch(args);

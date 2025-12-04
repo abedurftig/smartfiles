@@ -1,8 +1,6 @@
 package dev.arne.smartfiles.app;
 
-import dev.arne.smartfiles.core.model.ArchiveEntryAddedEvent;
-import dev.arne.smartfiles.core.model.LightThemeActivatedSettingChangedEvent;
-import dev.arne.smartfiles.core.model.SmartFilesEvent;
+import dev.arne.smartfiles.core.events.*;
 import org.springframework.context.ApplicationListener;
 
 public class ApplicationInteractor implements ApplicationListener<SmartFilesEvent> {
@@ -17,10 +15,18 @@ public class ApplicationInteractor implements ApplicationListener<SmartFilesEven
     public void onApplicationEvent(SmartFilesEvent event) {
 
         switch (event) {
-            case ArchiveEntryAddedEvent archiveEntryAddedEvent -> handleArchiveEntryAddedEvent(archiveEntryAddedEvent);
-            case LightThemeActivatedSettingChangedEvent lightThemeActivatedSettingChangedEvent ->
-                    handleLightThemeActivatedSettingsChangedEvent(lightThemeActivatedSettingChangedEvent);
+            case ArchiveEntryAddedEvent e -> handleArchiveEntryAddedEvent(e);
+            case LightThemeActivatedSettingChangedEvent e -> handleLightThemeActivatedSettingsChangedEvent(e);
+            case DocumentTagAddedEvent e -> handleDocumentTagAddedEvent(e);
+            case TagAddedEvent e -> handleTagAddedEvent(e);
         }
+    }
+
+    private void handleTagAddedEvent(TagAddedEvent e) {
+    }
+
+    private void handleDocumentTagAddedEvent(DocumentTagAddedEvent e) {
+        model.updateDocumentTags();
     }
 
     private void handleLightThemeActivatedSettingsChangedEvent(LightThemeActivatedSettingChangedEvent lightThemeActivatedSettingChangedEvent) {

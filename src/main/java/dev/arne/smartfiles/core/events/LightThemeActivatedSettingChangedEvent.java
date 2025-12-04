@@ -1,6 +1,4 @@
-package dev.arne.smartfiles.core.model;
-
-import java.time.Clock;
+package dev.arne.smartfiles.core.events;
 
 public final class LightThemeActivatedSettingChangedEvent extends SmartFilesEvent {
 
