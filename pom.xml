@@ -110,7 +110,7 @@
                         <!-- Usage: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>dev.arne.smartfiles.App</mainClass>
+                            <mainClass>dev.arne.smartfiles.SmartFilesApp</mainClass>
                         </configuration>
                     </execution>
                 </executions>

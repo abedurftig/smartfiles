@@ -26,6 +26,14 @@
     -fx-padding: 0px;
 }
 
+.sf-document-list-item:filled:hover {
+    -fx-background-color: -color-bg-subtle;
+}
+
+.sf-document-list-item:filled:selected {
+    -fx-background-color: -color-accent-subtle;
+}
+
 .sf-area-label {
 }
 
