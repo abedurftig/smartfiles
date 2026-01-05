@@ -4,6 +4,8 @@ import dev.arne.smartfiles.core.model.ArchiveEntry;
 import dev.arne.smartfiles.core.model.Tag;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,12 +18,25 @@ public class ApplicationModel {
 
     private final StringProperty selectedDocumentNameProperty = new SimpleStringProperty(null);
     private final BooleanProperty lightModeActivated = new SimpleBooleanProperty(false);
-    private final SimpleListProperty<ArchiveEntry> documentsProperty =
-            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ObservableList<ArchiveEntry> documentsList = FXCollections.observableArrayList();
+    private final FilteredList<ArchiveEntry> filteredDocuments = new FilteredList<>(documentsList, _ -> true);
     private final SimpleListProperty<Tag> tagsProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
+    private final StringProperty searchTextProperty = new SimpleStringProperty("");
     private final ObjectProperty<ArchiveEntry> selectedDocumentProperty = new SimpleObjectProperty<>();
+
+    public ApplicationModel() {
+        searchTextProperty.addListener((_, _, newValue) -> {
+            if (newValue == null || newValue.isBlank()) {
+                filteredDocuments.setPredicate(_ -> true);
+            } else {
+                String lowerCaseSearch = newValue.toLowerCase();
+                filteredDocuments.setPredicate(entry ->
+                        entry.getName().toLowerCase().contains(lowerCaseSearch));
+            }
+        });
+    }
 
     public void setSelectedDocument(ArchiveEntry selectedDocument) {
         selectedDocumentProperty.setValue(selectedDocument);
@@ -48,10 +63,10 @@ public class ApplicationModel {
     }
 
     public void setDocumentsFromArchiveEntries(List<ArchiveEntry> archiveEntries) {
-        documentsProperty.addAll(archiveEntries);
+        documentsList.addAll(archiveEntries);
     }
 
     public void addDocumentFromArchiveEntry(ArchiveEntry archiveEntry) {
-        documentsProperty.addAll(archiveEntry);
+        documentsList.add(archiveEntry);
     }
 }

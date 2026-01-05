@@ -109,7 +109,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
         documentList.setCellFactory(_ -> DocumentListCell.createDocumentListCell());
         documentList.selectionModelProperty().get().selectedItemProperty()
                 .addListener((_, _, newValue) -> selectDocumentFromListItem(newValue));
-        documentList.itemsProperty().bind(model.getDocumentsProperty());
+        documentList.setItems(model.getFilteredDocuments());
 
         vBox.getChildren().add(createAreaLabel("Documents"));
         vBox.getChildren().add(documentList);
@@ -183,6 +183,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
         var vBox = createVBoxColumn();
         TextField searchTextField = new TextField();
         searchTextField.setPromptText("Search");
+        searchTextField.textProperty().bindBidirectional(model.getSearchTextProperty());
         vBox.getChildren().add(createAreaLabel("Find document"));
         vBox.getChildren().add(searchTextField);
         return vBox;
