@@ -6,16 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Run the application
-mvn clean javafx:run
+./mvnw clean javafx:run
 
-# Compile
-mvn compile
+# Run tests
+./mvnw test
 
 # Package
-mvn clean package
+./mvnw clean package
 ```
-
-No tests exist yet. The project uses `spring-boot-starter-test` but has no test files.
 
 ## Tech Stack
 

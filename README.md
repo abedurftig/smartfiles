@@ -1,7 +1,22 @@
 # SmartArchive
 
-Archive your PDFs like with Evernote back then, but free and offline first. Everything works on your machine. 
+Archive your PDFs like with Evernote back then, but free and offline first. Everything works on your machine.
 Access any file from the past in now time. Leverage local LLM models to help to categorize and summarize your documents.
+
+## Build & Run
+
+Requires Java 25.
+
+```bash
+# Run the application
+./mvnw clean javafx:run
+
+# Run tests
+./mvnw test
+
+# Package
+./mvnw clean package
+```
 
 ## Todos
 
