@@ -28,3 +28,7 @@
 
 .sf-area-label {
 }
+
+.sf-document-view {
+    -fx-background-color: white;
+}

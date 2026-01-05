@@ -3,8 +3,8 @@ package dev.arne.smartfiles.app;
 import atlantafx.base.theme.Styles;
 import dev.arne.smartfiles.SmartFilesApp;
 import dev.arne.smartfiles.app.components.DocumentListCell;
+import dev.arne.smartfiles.app.components.DocumentView;
 import dev.arne.smartfiles.app.components.WrappingListView;
-import dev.arne.smartfiles.app.pdf.PdfImageRenderer;
 import dev.arne.smartfiles.core.ArchiveService;
 import dev.arne.smartfiles.core.SettingsService;
 import dev.arne.smartfiles.core.model.ArchiveEntry;
@@ -13,7 +13,6 @@ import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -26,9 +25,12 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ApplicationViewBuilder implements Builder<Region> {
+
+    public static final ExecutorService APP_EXECUTOR = Executors.newCachedThreadPool();
 
     private final Logger logger = LoggerFactory.getLogger(ApplicationViewBuilder.class);
 
@@ -38,13 +40,9 @@ public class ApplicationViewBuilder implements Builder<Region> {
     private final SettingsService settingsService;
     private final ArchiveService archiveService;
 
-    private Label documentName;
-    private TextField searchTextField;
     private TextField newTagTextField;
-    private ListView<ArchiveEntry> documentList;
-    private ScrollPane documentPane;
-    private ImageView imageView;
     private Dialog<String> dialog;
+    private DocumentView documentView;
 
     public ApplicationViewBuilder(ApplicationModel model, SettingsService settingsService, ArchiveService archiveService) {
         this.model = model;
@@ -79,7 +77,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
         logger.info("lightModeActivated: {}", model.isLightModeActivated());
         var iconCode = model.isLightModeActivated() ? "ci-asleep" : "ci-awake";
         var themeToggleButton = new Button("", new FontIcon(iconCode));
-        themeToggleButton.setOnAction(e -> {
+        themeToggleButton.setOnAction(_ -> {
             settingsService.toggleLightThemeActive();
             if (model.isLightModeActivated()) {
                 themeToggleButton.setGraphic(new FontIcon("ci-asleep"));
@@ -105,10 +103,10 @@ public class ApplicationViewBuilder implements Builder<Region> {
         var vBox = createVBoxColumn();
         vBox.setAlignment(Pos.TOP_LEFT);
 
-        documentList = new ListView<>();
+        ListView<ArchiveEntry> documentList = new ListView<>();
         alwaysVGrow(documentList);
         documentList.getStyleClass().add("sf-document-list");
-        documentList.setCellFactory(listView -> DocumentListCell.createDocumentListCell());
+        documentList.setCellFactory(_ -> DocumentListCell.createDocumentListCell());
         documentList.selectionModelProperty().get().selectedItemProperty()
                 .addListener((_, _, newValue) -> selectDocumentFromListItem(newValue));
         documentList.itemsProperty().bind(model.getDocumentsProperty());
@@ -141,13 +139,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
         } else {
             model.setSelectedDocument(selectedItem);
             var file = archiveService.getFile(selectedItem.getId());
-            try {
-                var renderer = new PdfImageRenderer(file);
-                imageView.setImage(renderer.renderPage(0));
-                imageView.setFitWidth(documentPane.getViewportBounds().getWidth());
-            } catch (IOException e) {
-                logger.error("Cannot create renderer: {}", e.getMessage(), e);
-            }
+            documentView.viewFile(file);
         }
     }
 
@@ -166,19 +158,15 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
     private VBox createCenterContent() {
         var vBox = createVBoxColumn();
-        documentName = createAreaLabel("Document name");
+        Label documentName = createAreaLabel("Document name");
         documentName.textProperty().bind(model.getSelectedDocumentNameProperty());
 
-        imageView = new ImageView();
-        imageView.setPreserveRatio(true);
-
-        documentPane = new ScrollPane();
-        documentPane.setFitToWidth(true);
-        documentPane.setFitToHeight(true);
-        documentPane.setContent(imageView);
+        documentView = new DocumentView();
+        documentView.setFitToWidth(true);
+        documentView.setFitToHeight(true);
 
         vBox.getChildren().add(documentName);
-        vBox.getChildren().add(documentPane);
+        vBox.getChildren().add(documentView);
         return vBox;
     }
 
@@ -193,7 +181,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
     private VBox createRightTop() {
         var vBox = createVBoxColumn();
-        searchTextField = new TextField();
+        TextField searchTextField = new TextField();
         searchTextField.setPromptText("Search");
         vBox.getChildren().add(createAreaLabel("Find document"));
         vBox.getChildren().add(searchTextField);
@@ -205,7 +193,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
         vBox.disableProperty().bind(model.getSelectedDocumentNameProperty().isNull());
         newTagTextField = new TextField();
         newTagTextField.setPromptText("Add tag");
-        newTagTextField.setOnAction(e -> {
+        newTagTextField.setOnAction(_ -> {
             logger.info("Adding tag: {}", newTagTextField.getText());
             archiveService.addTag(model.getSelectedDocumentId(), newTagTextField.getText());
             newTagTextField.clear();
@@ -238,7 +226,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
     private Button createSettingsDialogAndButton() {
         var settingsButton = new Button("", new FontIcon("ci-settings"));
-        settingsButton.setOnAction(e -> {
+        settingsButton.setOnAction(_ -> {
             if (!dialog.isShowing()) {
                 dialog.showAndWait();
             }

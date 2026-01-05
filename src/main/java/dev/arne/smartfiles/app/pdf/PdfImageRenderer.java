@@ -16,27 +16,34 @@ public final class PdfImageRenderer {
 
     private final PDDocument document;
     private final PDFRenderer renderer;
-
     private final HashMap<Integer, Image> imageCache = new HashMap<>();
+    private final Object renderLock = new Object();
 
     public PdfImageRenderer(File file) throws IOException {
         document = Loader.loadPDF(file);
         renderer = new PDFRenderer(document);
     }
 
+    public int getNumberOfPages() {
+        return document.getNumberOfPages();
+    }
+
     public Image renderPage(int pageIndex) throws IOException {
 
         if (pageIndex < 0 || pageIndex >= document.getNumberOfPages()) return null;
-        if (imageCache.containsKey(pageIndex)) return imageCache.get(pageIndex);
+        synchronized (renderLock) {
 
-        final double scale = 1.0;
+            if (imageCache.containsKey(pageIndex)) return imageCache.get(pageIndex);
 
-        float dpi = (float) (150 * scale * 2.0); // multiplier 2.0 for crisp result
-        BufferedImage bim = renderer.renderImageWithDPI(pageIndex, dpi, ImageType.RGB);
-        var result = SwingFXUtils.toFXImage(bim, null);
+            final double scale = 1.0;
 
-        imageCache.put(pageIndex, result);
+            float dpi = (float) (150 * scale * 2.0); // multiplier 2.0 for crisp result
+            BufferedImage bim = renderer.renderImageWithDPI(pageIndex, dpi, ImageType.RGB);
+            var result = SwingFXUtils.toFXImage(bim, null);
 
-        return result;
+            imageCache.put(pageIndex, result);
+
+            return result;
+        }
     }
 }
