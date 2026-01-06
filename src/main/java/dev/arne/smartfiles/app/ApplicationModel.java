@@ -27,6 +27,7 @@ public class ApplicationModel {
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final StringProperty searchTextProperty = new SimpleStringProperty("");
+    private final StringProperty descriptionProperty = new SimpleStringProperty("");
     private final ObjectProperty<ArchiveEntry> selectedDocumentProperty = new SimpleObjectProperty<>();
 
     private final SimpleListProperty<Tag> allTagsProperty =
@@ -73,12 +74,29 @@ public class ApplicationModel {
     public void setSelectedDocument(ArchiveEntry selectedDocument) {
         selectedDocumentProperty.setValue(selectedDocument);
         selectedDocumentNameProperty.setValue(selectedDocument.getName());
+        descriptionProperty.setValue(selectedDocument.getSummary());
         updateDocumentTags();
     }
 
     public void updateDocumentTags() {
         tagsProperty.removeIf(_ -> true);
         tagsProperty.addAll(selectedDocumentProperty.get().getTags());
+    }
+
+    public void updateDescription(String description) {
+        descriptionProperty.setValue(description);
+        var selectedDocument = selectedDocumentProperty.get();
+        if (selectedDocument != null) {
+            selectedDocument.setSummary(description);
+            refreshDocumentInList(selectedDocument);
+        }
+    }
+
+    private void refreshDocumentInList(ArchiveEntry entry) {
+        int index = documentsList.indexOf(entry);
+        if (index >= 0) {
+            documentsList.set(index, entry);
+        }
     }
 
     public UUID getSelectedDocumentId() {

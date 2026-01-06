@@ -3,6 +3,7 @@ package dev.arne.smartfiles.core.service;
 import dev.arne.smartfiles.core.ArchiveService;
 import dev.arne.smartfiles.core.FileService;
 import dev.arne.smartfiles.core.events.AllTagsUpdatedEvent;
+import dev.arne.smartfiles.core.events.DocumentDescriptionUpdatedEvent;
 import dev.arne.smartfiles.core.events.DocumentTagAddedEvent;
 import dev.arne.smartfiles.core.model.Archive;
 import dev.arne.smartfiles.core.model.ArchiveEntry;
@@ -85,6 +86,15 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
         entry.getTags().add(newTag);
         publisher.publishEvent(new DocumentTagAddedEvent(newTag, selectedDocumentId));
         publisher.publishEvent(new AllTagsUpdatedEvent(getAllUniqueTags()));
+    }
+
+    @Override
+    public void updateDescription(UUID documentId, String description) {
+        var entry = archive.getArchiveEntries().get(documentId);
+        entry.setSummary(description);
+        entry.updateLastModified();
+        publisher.publishEvent(new DocumentDescriptionUpdatedEvent(documentId, description));
+        fileService.saveArchive(archive);
     }
 
     @Override

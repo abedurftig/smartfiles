@@ -51,3 +51,15 @@
     -fx-background-color: -color-accent-emphasis;
     -fx-text-fill: white;
 }
+
+.sf-description-field {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 4px 0px;
+    -fx-cursor: hand;
+}
+
+.sf-description-field:focused {
+    -fx-background-color: -color-bg-default;
+    -fx-cursor: text;
+}

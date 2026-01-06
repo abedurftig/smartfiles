@@ -20,5 +20,7 @@ public interface ArchiveService {
 
     void addTag(UUID selectedDocumentId, String text);
 
+    void updateDescription(UUID documentId, String description);
+
     Set<Tag> getAllUniqueTags();
 }

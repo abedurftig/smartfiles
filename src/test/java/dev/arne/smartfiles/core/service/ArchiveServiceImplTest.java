@@ -3,6 +3,7 @@ package dev.arne.smartfiles.core.service;
 import dev.arne.smartfiles.core.FileService;
 import dev.arne.smartfiles.core.events.AllTagsUpdatedEvent;
 import dev.arne.smartfiles.core.events.ArchiveEntryAddedEvent;
+import dev.arne.smartfiles.core.events.DocumentDescriptionUpdatedEvent;
 import dev.arne.smartfiles.core.events.DocumentTagAddedEvent;
 import dev.arne.smartfiles.core.model.Archive;
 import dev.arne.smartfiles.core.model.ArchiveEntry;
@@ -229,5 +230,45 @@ class ArchiveServiceImplTest {
 
         assertEquals(1, tags.size());
         assertTrue(tags.stream().anyMatch(t -> t.label().equals("invoice")));
+    }
+
+    @Test
+    void updateDescription_updatesEntrySummary() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+
+        archiveService.updateDescription(entry.getId(), "New description");
+
+        assertEquals("New description", entry.getSummary());
+    }
+
+    @Test
+    void updateDescription_publishesDocumentDescriptionUpdatedEvent() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+
+        archiveService.updateDescription(entry.getId(), "Updated description");
+
+        var captor = ArgumentCaptor.forClass(DocumentDescriptionUpdatedEvent.class);
+        verify(publisher).publishEvent(captor.capture());
+        assertEquals(entry.getId(), captor.getValue().getDocumentId());
+        assertEquals("Updated description", captor.getValue().getDescription());
+    }
+
+    @Test
+    void updateDescription_savesArchive() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+
+        archiveService.updateDescription(entry.getId(), "Description");
+
+        verify(fileService).saveArchive(archive);
+    }
+
+    @Test
+    void updateDescription_updatesLastModified() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+        var originalLastModified = entry.getDateLastModified();
+
+        archiveService.updateDescription(entry.getId(), "Description");
+
+        assertNotEquals(originalLastModified, entry.getDateLastModified());
     }
 }

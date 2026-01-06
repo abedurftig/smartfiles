@@ -18,6 +18,7 @@ public class ApplicationInteractor implements ApplicationListener<SmartFilesEven
         switch (event) {
             case AllTagsUpdatedEvent e -> handleAllTagsUpdatedEvent(e);
             case ArchiveEntryAddedEvent e -> handleArchiveEntryAddedEvent(e);
+            case DocumentDescriptionUpdatedEvent e -> handleDocumentDescriptionUpdatedEvent(e);
             case LightThemeActivatedSettingChangedEvent e -> handleLightThemeActivatedSettingsChangedEvent(e);
             case DocumentTagAddedEvent e -> handleDocumentTagAddedEvent(e);
             case TagAddedEvent e -> handleTagAddedEvent(e);
@@ -33,6 +34,10 @@ public class ApplicationInteractor implements ApplicationListener<SmartFilesEven
 
     private void handleDocumentTagAddedEvent(DocumentTagAddedEvent e) {
         model.updateDocumentTags();
+    }
+
+    private void handleDocumentDescriptionUpdatedEvent(DocumentDescriptionUpdatedEvent e) {
+        Platform.runLater(() -> model.updateDescription(e.getDescription()));
     }
 
     private void handleLightThemeActivatedSettingsChangedEvent(LightThemeActivatedSettingChangedEvent lightThemeActivatedSettingChangedEvent) {

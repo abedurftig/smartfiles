@@ -42,6 +42,7 @@ public class ApplicationViewBuilder implements Builder<Region> {
     private final ArchiveService archiveService;
 
     private TextField newTagTextField;
+    private TextField descriptionField;
     private Dialog<String> dialog;
     private DocumentView documentView;
 
@@ -182,6 +183,9 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
     private VBox createRightTop() {
         var vBox = createVBoxColumn();
+        vBox.setFocusTraversable(true);
+        vBox.setOnMousePressed(_ -> vBox.requestFocus());
+
         TextField searchTextField = new TextField();
         searchTextField.setPromptText("Search");
         searchTextField.textProperty().bindBidirectional(model.getSearchTextProperty());
@@ -201,7 +205,36 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
     private VBox createRightBottom() {
         var vBox = createVBoxColumn();
+        vBox.setFocusTraversable(true);
+        vBox.setOnMousePressed(_ -> vBox.requestFocus());
         vBox.disableProperty().bind(model.getSelectedDocumentNameProperty().isNull());
+
+        vBox.getChildren().add(createAreaLabel("Document details"));
+
+        descriptionField = new TextField();
+        descriptionField.setPromptText("Click to add description");
+        descriptionField.textProperty().bindBidirectional(model.getDescriptionProperty());
+        descriptionField.setEditable(false);
+        descriptionField.getStyleClass().add("sf-description-field");
+        descriptionField.setOnMouseClicked(_ -> {
+            descriptionField.setEditable(true);
+            descriptionField.requestFocus();
+            descriptionField.selectAll();
+        });
+        descriptionField.setOnAction(_ -> {
+            logger.info("Updating description: {}", descriptionField.getText());
+            archiveService.updateDescription(model.getSelectedDocumentId(), descriptionField.getText());
+            descriptionField.setEditable(false);
+            vBox.requestFocus();
+        });
+        descriptionField.focusedProperty().addListener((_, _, focused) -> {
+            if (!focused && descriptionField.isEditable()) {
+                descriptionField.setEditable(false);
+                descriptionField.setText(model.getDescriptionProperty().get());
+            }
+        });
+        vBox.getChildren().add(descriptionField);
+
         newTagTextField = new TextField();
         newTagTextField.setPromptText("Add tag");
         newTagTextField.setOnAction(_ -> {
@@ -209,7 +242,6 @@ public class ApplicationViewBuilder implements Builder<Region> {
             archiveService.addTag(model.getSelectedDocumentId(), newTagTextField.getText());
             newTagTextField.clear();
         });
-        vBox.getChildren().add(createAreaLabel("Document details"));
         vBox.getChildren().add(newTagTextField);
 
         vBox.getChildren().add(createAreaLabel("Tags"));
