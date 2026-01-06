@@ -4,6 +4,7 @@ import atlantafx.base.theme.Styles;
 import dev.arne.smartfiles.SmartFilesApp;
 import dev.arne.smartfiles.app.components.DocumentListCell;
 import dev.arne.smartfiles.app.components.DocumentView;
+import dev.arne.smartfiles.app.components.TagFilterView;
 import dev.arne.smartfiles.app.components.WrappingListView;
 import dev.arne.smartfiles.core.ArchiveService;
 import dev.arne.smartfiles.core.SettingsService;
@@ -186,6 +187,15 @@ public class ApplicationViewBuilder implements Builder<Region> {
         searchTextField.textProperty().bindBidirectional(model.getSearchTextProperty());
         vBox.getChildren().add(createAreaLabel("Find document"));
         vBox.getChildren().add(searchTextField);
+
+        vBox.getChildren().add(createAreaLabel("Filter by tags"));
+        var tagFilterView = new TagFilterView(
+                model.getAllTagsProperty(),
+                model.getSelectedFilterTags(),
+                model::toggleFilterTag
+        );
+        vBox.getChildren().add(tagFilterView);
+
         return vBox;
     }
 

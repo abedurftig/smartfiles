@@ -1,6 +1,7 @@
 package dev.arne.smartfiles.core.service;
 
 import dev.arne.smartfiles.core.FileService;
+import dev.arne.smartfiles.core.events.AllTagsUpdatedEvent;
 import dev.arne.smartfiles.core.events.ArchiveEntryAddedEvent;
 import dev.arne.smartfiles.core.events.DocumentTagAddedEvent;
 import dev.arne.smartfiles.core.model.Archive;
@@ -150,8 +151,83 @@ class ArchiveServiceImplTest {
         archiveService.addTag(entry.getId(), "receipt");
 
         var captor = ArgumentCaptor.forClass(DocumentTagAddedEvent.class);
-        verify(publisher).publishEvent(captor.capture());
-        assertEquals("receipt", captor.getValue().getNewTag().label());
-        assertEquals(entry.getId(), captor.getValue().getSelectedDocumentId());
+        verify(publisher, atLeastOnce()).publishEvent(captor.capture());
+        var documentTagEvent = captor.getAllValues().stream()
+                .filter(e -> e instanceof DocumentTagAddedEvent)
+                .map(e -> (DocumentTagAddedEvent) e)
+                .findFirst()
+                .orElseThrow();
+        assertEquals("receipt", documentTagEvent.getNewTag().label());
+        assertEquals(entry.getId(), documentTagEvent.getSelectedDocumentId());
+    }
+
+    @Test
+    void addTag_publishesAllTagsUpdatedEvent() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+        entry.setTags(new HashSet<>());
+
+        archiveService.addTag(entry.getId(), "invoice");
+
+        var captor = ArgumentCaptor.forClass(AllTagsUpdatedEvent.class);
+        verify(publisher, atLeastOnce()).publishEvent(captor.capture());
+        var allTagsEvent = captor.getAllValues().stream()
+                .filter(e -> e instanceof AllTagsUpdatedEvent)
+                .map(e -> (AllTagsUpdatedEvent) e)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(1, allTagsEvent.getAllTags().size());
+        assertTrue(allTagsEvent.getAllTags().stream().anyMatch(t -> t.label().equals("invoice")));
+    }
+
+    @Test
+    void getAllUniqueTags_whenNoDocuments_returnsEmptySet() {
+        var tags = archiveService.getAllUniqueTags();
+
+        assertTrue(tags.isEmpty());
+    }
+
+    @Test
+    void getAllUniqueTags_whenDocumentsHaveNoTags_returnsEmptySet() {
+        archive.addArchiveEntryFromFile(new File("/tmp/doc1.pdf"), "/orig/doc1.pdf");
+        archive.addArchiveEntryFromFile(new File("/tmp/doc2.pdf"), "/orig/doc2.pdf");
+
+        var tags = archiveService.getAllUniqueTags();
+
+        assertTrue(tags.isEmpty());
+    }
+
+    @Test
+    void getAllUniqueTags_returnsAllUniqueTags() {
+        var entry1 = archive.addArchiveEntryFromFile(new File("/tmp/doc1.pdf"), "/orig/doc1.pdf");
+        var entry2 = archive.addArchiveEntryFromFile(new File("/tmp/doc2.pdf"), "/orig/doc2.pdf");
+        entry1.setTags(new HashSet<>());
+        entry2.setTags(new HashSet<>());
+
+        archiveService.addTag(entry1.getId(), "invoice");
+        archiveService.addTag(entry1.getId(), "important");
+        archiveService.addTag(entry2.getId(), "receipt");
+
+        var tags = archiveService.getAllUniqueTags();
+
+        assertEquals(3, tags.size());
+        assertTrue(tags.stream().anyMatch(t -> t.label().equals("invoice")));
+        assertTrue(tags.stream().anyMatch(t -> t.label().equals("important")));
+        assertTrue(tags.stream().anyMatch(t -> t.label().equals("receipt")));
+    }
+
+    @Test
+    void getAllUniqueTags_deduplicatesTagsAcrossDocuments() {
+        var entry1 = archive.addArchiveEntryFromFile(new File("/tmp/doc1.pdf"), "/orig/doc1.pdf");
+        var entry2 = archive.addArchiveEntryFromFile(new File("/tmp/doc2.pdf"), "/orig/doc2.pdf");
+        entry1.setTags(new HashSet<>());
+        entry2.setTags(new HashSet<>());
+
+        archiveService.addTag(entry1.getId(), "invoice");
+        archiveService.addTag(entry2.getId(), "invoice");
+
+        var tags = archiveService.getAllUniqueTags();
+
+        assertEquals(1, tags.size());
+        assertTrue(tags.stream().anyMatch(t -> t.label().equals("invoice")));
     }
 }

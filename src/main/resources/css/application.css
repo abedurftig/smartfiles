@@ -40,3 +40,14 @@
 .sf-document-view {
     -fx-background-color: white;
 }
+
+.sf-tag-filter-button {
+    -fx-background-radius: 15px;
+    -fx-padding: 4px 10px;
+    -fx-font-size: 11px;
+}
+
+.sf-tag-filter-button:selected {
+    -fx-background-color: -color-accent-emphasis;
+    -fx-text-fill: white;
+}

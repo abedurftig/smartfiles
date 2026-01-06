@@ -5,11 +5,14 @@ import dev.arne.smartfiles.core.model.Tag;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.collections.transformation.FilteredList;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -26,16 +29,45 @@ public class ApplicationModel {
     private final StringProperty searchTextProperty = new SimpleStringProperty("");
     private final ObjectProperty<ArchiveEntry> selectedDocumentProperty = new SimpleObjectProperty<>();
 
+    private final SimpleListProperty<Tag> allTagsProperty =
+            new SimpleListProperty<>(FXCollections.observableArrayList());
+    private final ObservableSet<Tag> selectedFilterTags = FXCollections.observableSet();
+
     public ApplicationModel() {
-        searchTextProperty.addListener((_, _, newValue) -> {
-            if (newValue == null || newValue.isBlank()) {
-                filteredDocuments.setPredicate(_ -> true);
-            } else {
-                String lowerCaseSearch = newValue.toLowerCase();
-                filteredDocuments.setPredicate(entry ->
-                        entry.getName().toLowerCase().contains(lowerCaseSearch));
-            }
+        searchTextProperty.addListener((_, _, _) -> updateFilterPredicate());
+        selectedFilterTags.addListener((SetChangeListener<Tag>) _ -> updateFilterPredicate());
+    }
+
+    private void updateFilterPredicate() {
+        String searchText = searchTextProperty.get();
+        boolean hasSearchText = searchText != null && !searchText.isBlank();
+        String lowerCaseSearch = hasSearchText ? searchText.toLowerCase() : "";
+        boolean hasSelectedTags = !selectedFilterTags.isEmpty();
+
+        filteredDocuments.setPredicate(entry -> {
+            boolean matchesSearch = !hasSearchText ||
+                    entry.getName().toLowerCase().contains(lowerCaseSearch);
+            boolean matchesTags = !hasSelectedTags ||
+                    entry.getTags().stream().anyMatch(selectedFilterTags::contains);
+            return matchesSearch && matchesTags;
         });
+    }
+
+    public void toggleFilterTag(Tag tag) {
+        if (selectedFilterTags.contains(tag)) {
+            selectedFilterTags.remove(tag);
+        } else {
+            selectedFilterTags.add(tag);
+        }
+    }
+
+    public boolean isFilterTagSelected(Tag tag) {
+        return selectedFilterTags.contains(tag);
+    }
+
+    public void setAllTags(Set<Tag> tags) {
+        allTagsProperty.clear();
+        allTagsProperty.addAll(tags);
     }
 
     public void setSelectedDocument(ArchiveEntry selectedDocument) {

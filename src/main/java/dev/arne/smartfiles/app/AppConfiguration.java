@@ -13,6 +13,7 @@ public class AppConfiguration {
         var model = new ApplicationModel();
         model.setLightModeActivated(settingsService.isLightThemeActive());
         model.setDocumentsFromArchiveEntries(archiveService.getAll());
+        model.setAllTags(archiveService.getAllUniqueTags());
         return model;
     }
 

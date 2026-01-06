@@ -1,9 +1,11 @@
 package dev.arne.smartfiles.core;
 
 import dev.arne.smartfiles.core.model.ArchiveEntry;
+import dev.arne.smartfiles.core.model.Tag;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ArchiveService {
@@ -17,4 +19,6 @@ public interface ArchiveService {
     File getFile(UUID id);
 
     void addTag(UUID selectedDocumentId, String text);
+
+    Set<Tag> getAllUniqueTags();
 }

@@ -1,6 +1,7 @@
 package dev.arne.smartfiles.app;
 
 import dev.arne.smartfiles.core.events.*;
+import javafx.application.Platform;
 import org.springframework.context.ApplicationListener;
 
 public class ApplicationInteractor implements ApplicationListener<SmartFilesEvent> {
@@ -15,11 +16,16 @@ public class ApplicationInteractor implements ApplicationListener<SmartFilesEven
     public void onApplicationEvent(SmartFilesEvent event) {
 
         switch (event) {
+            case AllTagsUpdatedEvent e -> handleAllTagsUpdatedEvent(e);
             case ArchiveEntryAddedEvent e -> handleArchiveEntryAddedEvent(e);
             case LightThemeActivatedSettingChangedEvent e -> handleLightThemeActivatedSettingsChangedEvent(e);
             case DocumentTagAddedEvent e -> handleDocumentTagAddedEvent(e);
             case TagAddedEvent e -> handleTagAddedEvent(e);
         }
+    }
+
+    private void handleAllTagsUpdatedEvent(AllTagsUpdatedEvent e) {
+        Platform.runLater(() -> model.setAllTags(e.getAllTags()));
     }
 
     private void handleTagAddedEvent(TagAddedEvent e) {
