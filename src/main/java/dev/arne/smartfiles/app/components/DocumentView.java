@@ -34,6 +34,17 @@ public class DocumentView extends ScrollPane {
         content.setFillWidth(true);
     }
 
+    public void clear() {
+        for (Task<?> task : activeTasks) {
+            if (task != null && task.isRunning()) {
+                task.cancel();
+            }
+        }
+        activeTasks.clear();
+        currentImageViews.clear();
+        content.getChildren().clear();
+    }
+
     public void viewFile(File file) {
 
         if (!file.isFile() || !file.getName().contains(".pdf")) return;

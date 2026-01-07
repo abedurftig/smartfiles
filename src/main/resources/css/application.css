@@ -63,3 +63,23 @@
     -fx-background-color: -color-bg-default;
     -fx-cursor: text;
 }
+
+.sf-delete-button {
+    -fx-background-color: -color-danger-subtle;
+    -fx-text-fill: -color-danger-fg;
+    -fx-padding: 8px 12px;
+    -fx-cursor: hand;
+}
+
+.sf-delete-button:hover {
+    -fx-background-color: -color-danger-emphasis;
+    -fx-text-fill: white;
+}
+
+.sf-delete-button .ikonli-font-icon {
+    -fx-icon-color: -color-danger-fg;
+}
+
+.sf-delete-button:hover .ikonli-font-icon {
+    -fx-icon-color: white;
+}

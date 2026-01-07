@@ -3,6 +3,7 @@ package dev.arne.smartfiles.core.service;
 import dev.arne.smartfiles.core.ArchiveService;
 import dev.arne.smartfiles.core.FileService;
 import dev.arne.smartfiles.core.events.AllTagsUpdatedEvent;
+import dev.arne.smartfiles.core.events.DocumentDeletedEvent;
 import dev.arne.smartfiles.core.events.DocumentDescriptionUpdatedEvent;
 import dev.arne.smartfiles.core.events.DocumentTagAddedEvent;
 import dev.arne.smartfiles.core.model.Archive;
@@ -104,6 +105,28 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
             allTags.addAll(entry.getTags());
         }
         return allTags;
+    }
+
+    @Override
+    public void deleteDocument(UUID documentId) {
+        var entry = archive.getArchiveEntries().get(documentId);
+        if (entry == null) {
+            logger.warn("Document with id {} not found", documentId);
+            return;
+        }
+        try {
+            var filePath = Path.of(entry.getAbsolutePath());
+            if (Files.exists(filePath)) {
+                Files.delete(filePath);
+                logger.info("Deleted file: {}", filePath);
+            }
+        } catch (IOException e) {
+            logger.error("Failed to delete file for document {}", documentId, e);
+        }
+        archive.getArchiveEntries().remove(documentId);
+        publisher.publishEvent(new DocumentDeletedEvent(documentId));
+        publisher.publishEvent(new AllTagsUpdatedEvent(getAllUniqueTags()));
+        fileService.saveArchive(archive);
     }
 
     @Override

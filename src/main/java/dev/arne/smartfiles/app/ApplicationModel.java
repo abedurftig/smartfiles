@@ -119,4 +119,18 @@ public class ApplicationModel {
     public void addDocumentFromArchiveEntry(ArchiveEntry archiveEntry) {
         documentsList.add(archiveEntry);
     }
+
+    public void removeDocument(UUID documentId) {
+        documentsList.removeIf(entry -> entry.getId().equals(documentId));
+        if (selectedDocumentProperty.get() != null && selectedDocumentProperty.get().getId().equals(documentId)) {
+            clearSelectedDocument();
+        }
+    }
+
+    public void clearSelectedDocument() {
+        selectedDocumentProperty.setValue(null);
+        selectedDocumentNameProperty.setValue(null);
+        descriptionProperty.setValue("");
+        tagsProperty.clear();
+    }
 }

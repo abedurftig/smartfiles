@@ -26,6 +26,8 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -146,7 +148,27 @@ public class ApplicationViewBuilder implements Builder<Region> {
     }
 
     private void clearSelectedDocument() {
+        model.clearSelectedDocument();
+        documentView.clear();
+    }
 
+    private void showDeleteConfirmation(UUID documentId) {
+        var entry = archiveService.retrieveFileDetails(documentId);
+        if (entry == null) {
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Document");
+        alert.setHeaderText("Delete \"" + entry.getName() + "\"?");
+        alert.setContentText("This action cannot be undone. The document will be permanently removed from the archive.");
+
+        alert.initModality(Modality.APPLICATION_MODAL);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            archiveService.deleteDocument(documentId);
+        }
     }
 
     private SplitPane createCenter() {
@@ -246,6 +268,17 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
         vBox.getChildren().add(createAreaLabel("Tags"));
         vBox.getChildren().add(new WrappingListView(model.getTagsProperty()));
+
+        var spacer = new Region();
+        VBox.setVgrow(spacer, Priority.ALWAYS);
+        vBox.getChildren().add(spacer);
+
+        var deleteButton = new Button("Delete Document", new FontIcon("ci-trash-can"));
+        deleteButton.getStyleClass().add("sf-delete-button");
+        deleteButton.setMaxWidth(Double.MAX_VALUE);
+        deleteButton.setOnAction(_ -> showDeleteConfirmation(model.getSelectedDocumentId()));
+        vBox.getChildren().add(deleteButton);
+
         return vBox;
     }
 

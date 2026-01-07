@@ -23,4 +23,6 @@ public interface ArchiveService {
     void updateDescription(UUID documentId, String description);
 
     Set<Tag> getAllUniqueTags();
+
+    void deleteDocument(UUID documentId);
 }
