@@ -17,6 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -66,7 +67,26 @@ public class ApplicationViewBuilder implements Builder<Region> {
         alwaysVGrow(vBox);
         vBox.getChildren().add(createToolBar());
         vBox.getChildren().add(createLeft());
+        vBox.getChildren().add(createFooter());
         return vBox;
+    }
+
+    private HBox createFooter() {
+        var footer = new HBox(20);
+        footer.getStyleClass().add("sf-footer");
+        footer.setAlignment(Pos.CENTER_LEFT);
+        footer.setPadding(new Insets(8, 12, 8, 12));
+
+        var createdLabel = new Label();
+        createdLabel.textProperty().bind(model.getArchiveDateCreatedProperty().map(date -> "Created: " + date));
+        createdLabel.getStyleClass().add("sf-footer-label");
+
+        var modifiedLabel = new Label();
+        modifiedLabel.textProperty().bind(model.getArchiveDateLastModifiedProperty().map(date -> "Last modified: " + date));
+        modifiedLabel.getStyleClass().add("sf-footer-label");
+
+        footer.getChildren().addAll(createdLabel, modifiedLabel);
+        return footer;
     }
 
     private ToolBar createToolBar() {

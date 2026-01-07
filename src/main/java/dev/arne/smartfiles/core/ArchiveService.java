@@ -4,6 +4,7 @@ import dev.arne.smartfiles.core.model.ArchiveEntry;
 import dev.arne.smartfiles.core.model.Tag;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -25,4 +26,8 @@ public interface ArchiveService {
     Set<Tag> getAllUniqueTags();
 
     void deleteDocument(UUID documentId);
+
+    LocalDateTime getArchiveDateCreated();
+
+    LocalDateTime getArchiveDateLastModified();
 }

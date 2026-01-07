@@ -3,6 +3,7 @@ package dev.arne.smartfiles.core.service;
 import dev.arne.smartfiles.core.ArchiveService;
 import dev.arne.smartfiles.core.FileService;
 import dev.arne.smartfiles.core.events.AllTagsUpdatedEvent;
+import dev.arne.smartfiles.core.events.ArchiveLastModifiedUpdatedEvent;
 import dev.arne.smartfiles.core.events.DocumentDeletedEvent;
 import dev.arne.smartfiles.core.events.DocumentDescriptionUpdatedEvent;
 import dev.arne.smartfiles.core.events.DocumentTagAddedEvent;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,7 +59,7 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
         for (var newEntry : newEntries) {
             publisher.publishEvent(new ArchiveEntryAddedEvent(newEntry));
         }
-        fileService.saveArchive(archive);
+        saveArchiveAndPublishUpdate();
         return newEntries;
     }
 
@@ -87,6 +89,7 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
         entry.getTags().add(newTag);
         publisher.publishEvent(new DocumentTagAddedEvent(newTag, selectedDocumentId));
         publisher.publishEvent(new AllTagsUpdatedEvent(getAllUniqueTags()));
+        saveArchiveAndPublishUpdate();
     }
 
     @Override
@@ -95,7 +98,7 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
         entry.setSummary(description);
         entry.updateLastModified();
         publisher.publishEvent(new DocumentDescriptionUpdatedEvent(documentId, description));
-        fileService.saveArchive(archive);
+        saveArchiveAndPublishUpdate();
     }
 
     @Override
@@ -126,7 +129,17 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
         archive.getArchiveEntries().remove(documentId);
         publisher.publishEvent(new DocumentDeletedEvent(documentId));
         publisher.publishEvent(new AllTagsUpdatedEvent(getAllUniqueTags()));
-        fileService.saveArchive(archive);
+        saveArchiveAndPublishUpdate();
+    }
+
+    @Override
+    public LocalDateTime getArchiveDateCreated() {
+        return archive.getDateCreated();
+    }
+
+    @Override
+    public LocalDateTime getArchiveDateLastModified() {
+        return archive.getDateLastModified();
     }
 
     @Override
@@ -141,5 +154,11 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
                 FileSystems.getDefault().getSeparator() +
                 file.getName();
         return Path.of(path);
+    }
+
+    private void saveArchiveAndPublishUpdate() {
+        archive.updateLastModified();
+        publisher.publishEvent(new ArchiveLastModifiedUpdatedEvent(archive.getDateLastModified()));
+        fileService.saveArchive(archive);
     }
 }

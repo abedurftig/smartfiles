@@ -5,8 +5,12 @@ import dev.arne.smartfiles.core.SettingsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.format.DateTimeFormatter;
+
 @Configuration
 public class AppConfiguration {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy 'at' HH:mm");
 
     @Bean
     public ApplicationModel applicationModel(SettingsService settingsService, ArchiveService archiveService) {
@@ -14,6 +18,8 @@ public class AppConfiguration {
         model.setLightModeActivated(settingsService.isLightThemeActive());
         model.setDocumentsFromArchiveEntries(archiveService.getAll());
         model.setAllTags(archiveService.getAllUniqueTags());
+        model.getArchiveDateCreatedProperty().set(archiveService.getArchiveDateCreated().format(DATE_FORMATTER));
+        model.getArchiveDateLastModifiedProperty().set(archiveService.getArchiveDateLastModified().format(DATE_FORMATTER));
         return model;
     }
 

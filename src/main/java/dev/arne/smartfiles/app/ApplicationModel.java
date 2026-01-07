@@ -34,6 +34,9 @@ public class ApplicationModel {
             new SimpleListProperty<>(FXCollections.observableArrayList());
     private final ObservableSet<Tag> selectedFilterTags = FXCollections.observableSet();
 
+    private final StringProperty archiveDateCreatedProperty = new SimpleStringProperty("");
+    private final StringProperty archiveDateLastModifiedProperty = new SimpleStringProperty("");
+
     public ApplicationModel() {
         searchTextProperty.addListener((_, _, _) -> updateFilterPredicate());
         selectedFilterTags.addListener((SetChangeListener<Tag>) _ -> updateFilterPredicate());

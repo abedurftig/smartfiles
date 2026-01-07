@@ -83,3 +83,14 @@
 .sf-delete-button:hover .ikonli-font-icon {
     -fx-icon-color: white;
 }
+
+.sf-footer {
+    -fx-background-color: -color-bg-subtle;
+    -fx-border-color: -color-border-default;
+    -fx-border-width: 1px 0 0 0;
+}
+
+.sf-footer-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: -color-fg-muted;
+}
