@@ -72,6 +72,8 @@ public class ApplicationModel {
     public void setAllTags(Set<Tag> tags) {
         allTagsProperty.clear();
         allTagsProperty.addAll(tags);
+        // Remove any selected filter tags that no longer exist
+        selectedFilterTags.removeIf(tag -> !tags.contains(tag));
     }
 
     public void setSelectedDocument(ArchiveEntry selectedDocument) {
