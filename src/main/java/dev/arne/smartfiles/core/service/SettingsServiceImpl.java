@@ -34,6 +34,18 @@ public class SettingsServiceImpl implements SettingsService, ApplicationListener
     }
 
     @Override
+    public String getInboxFolderPath() {
+        return settings.getInboxFolderPath();
+    }
+
+    @Override
+    public void setInboxFolderPath(String path) {
+        settings.setInboxFolderPath(path);
+        settings.updateLastModified();
+        fileService.saveApplicationSettings(settings);
+    }
+
+    @Override
     public void onApplicationEvent(ContextClosedEvent event) {
         fileService.saveApplicationSettings(settings);
     }

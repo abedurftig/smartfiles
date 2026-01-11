@@ -11,14 +11,21 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public final class ApplicationSettings implements AggregateRoot {
 
+    private static final String DEFAULT_INBOX_FOLDER = System.getProperty("user.home") + "/Downloads";
+
     private String applicationVersion;
     private LocalDateTime dateCreated;
     private LocalDateTime dateLastModified;
     private boolean lightThemeActive;
+    private String inboxFolderPath;
 
     public static ApplicationSettings empty() {
         var now = LocalDateTime.now();
-        return new ApplicationSettings(CURRENT_APP_VERSION, now, now, false);
+        return new ApplicationSettings(CURRENT_APP_VERSION, now, now, false, DEFAULT_INBOX_FOLDER);
+    }
+
+    public String getInboxFolderPath() {
+        return inboxFolderPath != null ? inboxFolderPath : DEFAULT_INBOX_FOLDER;
     }
 
     @Override

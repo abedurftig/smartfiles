@@ -21,12 +21,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.util.Builder;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -342,9 +344,55 @@ public class ApplicationViewBuilder implements Builder<Region> {
         dialog = new Dialog<>();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Settings");
-        ButtonType type = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
-        dialog.setContentText("This is a sample dialog");
-        dialog.getDialogPane().getButtonTypes().add(type);
+
+        var content = new VBox(10);
+        content.setPadding(new Insets(10));
+
+        var inboxLabel = new Label("Inbox folder:");
+        var inboxPathField = new TextField(settingsService.getInboxFolderPath());
+        inboxPathField.setEditable(false);
+        inboxPathField.setPrefWidth(300);
+
+        var browseButton = new Button("Browse...");
+        browseButton.setOnAction(_ -> {
+            DirectoryChooser chooser = new DirectoryChooser();
+            chooser.setTitle("Select Inbox Folder");
+            File currentDir = new File(inboxPathField.getText());
+            if (currentDir.exists() && currentDir.isDirectory()) {
+                chooser.setInitialDirectory(currentDir);
+            }
+            File selected = chooser.showDialog(dialog.getOwner());
+            if (selected != null) {
+                inboxPathField.setText(selected.getAbsolutePath());
+            }
+        });
+
+        var inboxRow = new HBox(10, inboxPathField, browseButton);
+        inboxRow.setAlignment(Pos.CENTER_LEFT);
+
+        content.getChildren().addAll(inboxLabel, inboxRow);
+
+        dialog.getDialogPane().setContent(content);
+
+        ButtonType okType = new ButtonType("Ok", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+        dialog.getDialogPane().getButtonTypes().addAll(okType, cancelType);
+
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType == okType) {
+                return inboxPathField.getText();
+            }
+            return null;
+        });
+
+        dialog.setOnHidden(_ -> {
+            String result = dialog.getResult();
+            if (result != null && !result.equals(settingsService.getInboxFolderPath())) {
+                settingsService.setInboxFolderPath(result);
+                logger.info("Inbox folder updated to: {}", result);
+            }
+            inboxPathField.setText(settingsService.getInboxFolderPath());
+        });
     }
 
     public void handleDragOver(DragEvent event) {
