@@ -64,3 +64,8 @@ User Action → Service → Domain Event → Interactor → ApplicationModel →
 
 - `ApplicationViewBuilder.APP_EXECUTOR` - Cached thread pool for async PDF rendering
 - PDF rendering in `DocumentView` uses background tasks to avoid blocking UI
+
+## Workflow
+
+- Never commit or push without explicit user approval
+- Always show the diff and wait for confirmation before committing
