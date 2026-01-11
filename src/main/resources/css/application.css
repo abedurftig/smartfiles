@@ -41,10 +41,15 @@
     -fx-background-color: white;
 }
 
-.sf-tag-filter-button {
+.sf-tag-filter-button,
+.sf-document-tag {
     -fx-background-radius: 15px;
     -fx-padding: 4px 10px;
     -fx-font-size: 11px;
+}
+
+.sf-document-tag {
+    -fx-background-color: -color-bg-subtle;
 }
 
 .sf-tag-filter-button:selected {

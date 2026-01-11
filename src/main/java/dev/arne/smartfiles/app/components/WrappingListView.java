@@ -33,6 +33,8 @@ public class WrappingListView extends FlowPane {
     }
 
     private void renderItem(Tag tag) {
-        getChildren().add(new Label(tag.label()));
+        Label label = new Label(tag.label());
+        label.getStyleClass().add("sf-document-tag");
+        getChildren().add(label);
     }
 }
