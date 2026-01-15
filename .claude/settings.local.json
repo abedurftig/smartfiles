@@ -20,7 +20,16 @@
       "Bash(src/main/resources/css/application.css )",
       "Bash(src/test/java/dev/arne/smartfiles/core/service/ArchiveServiceImplTest.java)",
       "Bash(cat:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(npx beads:*)",
+      "Bash(bd create:*)",
+      "Bash(bd update:*)",
+      "Bash(bd list:*)",
+      "Bash(bd show:*)",
+      "Bash(bd dep:*)",
+      "Bash(bd close:*)",
+      "Bash(bd sync:*)",
+      "Bash(bd stats:*)"
     ]
   },
   "enabledPlugins": {
