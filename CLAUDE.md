@@ -67,5 +67,21 @@ User Action → Service → Domain Event → Interactor → ApplicationModel →
 
 ## Workflow
 
-- Never commit or push without explicit user approval
-- Always show the diff and wait for confirmation before committing
+When working on a beads issue:
+
+1. **Create a feature branch** using the naming convention:
+   ```
+   <issue-type>/<id>-<short-description>
+   ```
+   Examples:
+   - `bug/smartfiles-412-fix-immutable-set`
+   - `feature/smartfiles-wyr-persist-window-size`
+   - `task/smartfiles-tre-centralize-date-formatter`
+
+2. **Work on the branch** - commit and push freely to the feature branch
+
+3. **Run tests locally** with `./mvnw test` before pushing
+
+4. **Check the GitHub Actions pipeline** in `.github/workflows/` after pushing
+
+5. **Create a PR targeting `main`** once the pipeline passes, and provide the PR link for review
