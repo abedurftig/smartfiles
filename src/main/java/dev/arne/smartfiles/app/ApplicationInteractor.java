@@ -47,19 +47,18 @@ public class ApplicationInteractor implements ApplicationListener<SmartFilesEven
     }
 
     private void handleDocumentTagAddedEvent(DocumentTagAddedEvent e) {
-        model.updateDocumentTags();
+        Platform.runLater(() -> model.updateDocumentTags());
     }
 
     private void handleDocumentDescriptionUpdatedEvent(DocumentDescriptionUpdatedEvent e) {
         Platform.runLater(() -> model.updateDescription(e.getDescription()));
     }
 
-    private void handleLightThemeActivatedSettingsChangedEvent(LightThemeActivatedSettingChangedEvent lightThemeActivatedSettingChangedEvent) {
-        model.setLightModeActivated(lightThemeActivatedSettingChangedEvent.isLightThemeActive());
+    private void handleLightThemeActivatedSettingsChangedEvent(LightThemeActivatedSettingChangedEvent e) {
+        Platform.runLater(() -> model.setLightModeActivated(e.isLightThemeActive()));
     }
 
-    private void handleArchiveEntryAddedEvent(ArchiveEntryAddedEvent event) {
-        var entry = event.getArchiveEntry();
-        model.addDocumentFromArchiveEntry(entry);
+    private void handleArchiveEntryAddedEvent(ArchiveEntryAddedEvent e) {
+        Platform.runLater(() -> model.addDocumentFromArchiveEntry(e.getArchiveEntry()));
     }
 }
