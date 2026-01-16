@@ -9,6 +9,7 @@ import javafx.scene.layout.VBox;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
@@ -23,9 +24,10 @@ public class DocumentView extends ScrollPane {
     private final Logger logger = org.slf4j.LoggerFactory.getLogger(DocumentView.class);
 
     private final VBox content = new VBox();
-    private final Map<String, PdfImageRenderer> renderers = new HashMap<>();
     private final List<Task<?>> activeTasks = new ArrayList<>();
     private final Map<Integer, ImageView> currentImageViews = new HashMap<>();
+    private PdfImageRenderer currentRenderer;
+    private String currentFilePath;
 
     public DocumentView() {
         super();
@@ -43,6 +45,16 @@ public class DocumentView extends ScrollPane {
         activeTasks.clear();
         currentImageViews.clear();
         content.getChildren().clear();
+
+        if (currentRenderer != null) {
+            try {
+                currentRenderer.close();
+            } catch (IOException e) {
+                logger.warn("Failed to close PDF renderer", e);
+            }
+            currentRenderer = null;
+            currentFilePath = null;
+        }
     }
 
     public void viewFile(File file) {
@@ -59,24 +71,39 @@ public class DocumentView extends ScrollPane {
         currentImageViews.clear();
 
         this.setVvalue(0.0);
-        PdfImageRenderer renderer = renderers.get(file.getAbsolutePath());
-        if (renderer == null) {
+
+        String filePath = file.getAbsolutePath();
+
+        // Close previous renderer if switching to a different file
+        if (currentRenderer != null && !filePath.equals(currentFilePath)) {
             try {
-                renderer = new PdfImageRenderer(file);
+                currentRenderer.close();
+            } catch (IOException e) {
+                logger.warn("Failed to close previous PDF renderer", e);
+            }
+            currentRenderer = null;
+            currentFilePath = null;
+        }
+
+        // Create new renderer if needed
+        if (currentRenderer == null) {
+            try {
+                currentRenderer = new PdfImageRenderer(file);
+                currentFilePath = filePath;
             } catch (Exception e) {
+                logger.error("Failed to open PDF file: {}", filePath, e);
                 return;
             }
-            renderers.put(file.getAbsolutePath(), renderer);
         }
 
         content.getChildren().clear();
-        var number = renderer.getNumberOfPages();
+        var number = currentRenderer.getNumberOfPages();
         for (int i = 0; i < number; i++) {
             ImageView imageView = createPlaceholder();
             currentImageViews.put(i, imageView);
 
             // Create and submit the rendering task
-            Task<Image> renderTask = createRenderTask(renderer, i);
+            Task<Image> renderTask = createRenderTask(currentRenderer, i);
             APP_EXECUTOR.submit(renderTask);
             activeTasks.add(renderTask); // Track the new task
         }

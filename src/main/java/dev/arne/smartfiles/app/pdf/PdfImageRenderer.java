@@ -8,11 +8,12 @@ import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import java.awt.image.BufferedImage;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 
-public final class PdfImageRenderer {
+public final class PdfImageRenderer implements Closeable {
 
     private final PDDocument document;
     private final PDFRenderer renderer;
@@ -44,6 +45,14 @@ public final class PdfImageRenderer {
             imageCache.put(pageIndex, result);
 
             return result;
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        imageCache.clear();
+        if (document != null) {
+            document.close();
         }
     }
 }
