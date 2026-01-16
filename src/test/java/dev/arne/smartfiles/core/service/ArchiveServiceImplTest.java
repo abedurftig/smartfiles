@@ -3,6 +3,8 @@ package dev.arne.smartfiles.core.service;
 import dev.arne.smartfiles.core.FileService;
 import dev.arne.smartfiles.core.events.AllTagsUpdatedEvent;
 import dev.arne.smartfiles.core.events.ArchiveEntryAddedEvent;
+import dev.arne.smartfiles.core.events.ArchiveLastModifiedUpdatedEvent;
+import dev.arne.smartfiles.core.events.DocumentDeletedEvent;
 import dev.arne.smartfiles.core.events.DocumentDescriptionUpdatedEvent;
 import dev.arne.smartfiles.core.events.DocumentTagAddedEvent;
 import dev.arne.smartfiles.core.model.Archive;
@@ -270,5 +272,105 @@ class ArchiveServiceImplTest {
         archiveService.updateDescription(entry.getId(), "Description");
 
         assertNotEquals(originalLastModified, entry.getDateLastModified());
+    }
+
+    @Test
+    void deleteDocument_removesEntryFromArchive() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+        assertEquals(1, archive.getArchiveEntries().size());
+
+        archiveService.deleteDocument(entry.getId());
+
+        assertTrue(archive.getArchiveEntries().isEmpty());
+    }
+
+    @Test
+    void deleteDocument_deletesFileFromDisk() throws IOException {
+        var sourceFile = tempDir.resolve("test.pdf");
+        Files.writeString(sourceFile, "PDF content");
+        var entry = archive.addArchiveEntryFromFile(sourceFile.toFile(), "/orig/test.pdf");
+        assertTrue(Files.exists(sourceFile));
+
+        archiveService.deleteDocument(entry.getId());
+
+        assertFalse(Files.exists(sourceFile));
+    }
+
+    @Test
+    void deleteDocument_publishesDocumentDeletedEvent() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+
+        archiveService.deleteDocument(entry.getId());
+
+        var captor = ArgumentCaptor.forClass(DocumentDeletedEvent.class);
+        verify(publisher, atLeastOnce()).publishEvent(captor.capture());
+        var deletedEvent = captor.getAllValues().stream()
+                .filter(e -> e instanceof DocumentDeletedEvent)
+                .map(e -> (DocumentDeletedEvent) e)
+                .findFirst()
+                .orElseThrow();
+        assertEquals(entry.getId(), deletedEvent.getDocumentId());
+    }
+
+    @Test
+    void deleteDocument_publishesAllTagsUpdatedEvent() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+        entry.setTags(new HashSet<>());
+        archiveService.addTag(entry.getId(), "invoice");
+        reset(publisher);
+
+        archiveService.deleteDocument(entry.getId());
+
+        var captor = ArgumentCaptor.forClass(AllTagsUpdatedEvent.class);
+        verify(publisher, atLeastOnce()).publishEvent(captor.capture());
+        var allTagsEvent = captor.getAllValues().stream()
+                .filter(e -> e instanceof AllTagsUpdatedEvent)
+                .map(e -> (AllTagsUpdatedEvent) e)
+                .findFirst()
+                .orElseThrow();
+        assertTrue(allTagsEvent.getAllTags().isEmpty());
+    }
+
+    @Test
+    void deleteDocument_publishesArchiveLastModifiedUpdatedEvent() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+
+        archiveService.deleteDocument(entry.getId());
+
+        var captor = ArgumentCaptor.forClass(ArchiveLastModifiedUpdatedEvent.class);
+        verify(publisher, atLeastOnce()).publishEvent(captor.capture());
+        assertNotNull(captor.getValue().getLastModified());
+    }
+
+    @Test
+    void deleteDocument_whenEntryNotFound_doesNotPublishEvents() {
+        var nonExistentId = UUID.randomUUID();
+        reset(publisher);
+
+        archiveService.deleteDocument(nonExistentId);
+
+        verify(publisher, never()).publishEvent(any(DocumentDeletedEvent.class));
+        verify(publisher, never()).publishEvent(any(AllTagsUpdatedEvent.class));
+    }
+
+    @Test
+    void deleteDocument_savesArchive() {
+        var entry = archive.addArchiveEntryFromFile(new File("/tmp/test.pdf"), "/orig/test.pdf");
+        reset(fileService);
+
+        archiveService.deleteDocument(entry.getId());
+
+        verify(fileService).saveArchive(archive);
+    }
+
+    @Test
+    void deleteDocument_whenFileNotOnDisk_stillRemovesEntry() {
+        var nonExistentFile = new File(tempDir.resolve("nonexistent.pdf").toString());
+        var entry = archive.addArchiveEntryFromFile(nonExistentFile, "/orig/nonexistent.pdf");
+        assertEquals(1, archive.getArchiveEntries().size());
+
+        archiveService.deleteDocument(entry.getId());
+
+        assertTrue(archive.getArchiveEntries().isEmpty());
     }
 }

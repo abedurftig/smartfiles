@@ -10,6 +10,7 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.File;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,5 +114,42 @@ class FilesServiceImplTest {
 
         var settingsFile = new File(configuration.getTenantDirectory(), "settings.json");
         assertTrue(settingsFile.exists());
+    }
+
+    @Test
+    void getTenantDirectory_usesPlatformSeparator() {
+        var tenantDir = filesService.getTenantDirectory();
+        var separator = FileSystems.getDefault().getSeparator();
+
+        // Verify the path uses the platform's path separator
+        assertTrue(tenantDir.contains(separator),
+                "Tenant directory should use platform separator: " + separator);
+
+        // Verify the path is constructed correctly with root + separator + tenantId
+        var expectedEnd = separator + "test-tenant";
+        assertTrue(tenantDir.endsWith(expectedEnd),
+                "Tenant directory should end with separator + tenantId");
+    }
+
+    @Test
+    void getTenantDirectory_doesNotContainHardcodedSlash_whenOnWindows() {
+        var tenantDir = filesService.getTenantDirectory();
+        var separator = FileSystems.getDefault().getSeparator();
+
+        // If we're on a system where separator is not "/", there should be no "/" in the path
+        // This verifies the bug fix for hardcoded "/" characters
+        if (!separator.equals("/")) {
+            assertFalse(tenantDir.contains("/"),
+                    "Tenant directory should not contain hardcoded '/' when platform separator is: " + separator);
+        }
+    }
+
+    @Test
+    void constructor_createsFilesSubdirectory() {
+        var tenantDir = new File(configuration.getTenantDirectory());
+        var filesDir = new File(tenantDir, "files");
+
+        assertTrue(filesDir.exists(), "Files subdirectory should exist");
+        assertTrue(filesDir.isDirectory(), "Files subdirectory should be a directory");
     }
 }
