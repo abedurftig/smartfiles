@@ -1,6 +1,7 @@
 package dev.arne.smartfiles.core.model;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -28,7 +29,7 @@ public class ArchiveEntry {
     public static ArchiveEntry of(String name, String absolutePath, String originalPath) {
         var path = absolutePath.substring(absolutePath.lastIndexOf("/") + 1);
         var timeStamp = LocalDateTime.now();
-        return new ArchiveEntry(UUID.randomUUID(), name, "Not available yet", path, absolutePath, originalPath, Set.of(), timeStamp, timeStamp);
+        return new ArchiveEntry(UUID.randomUUID(), name, "Not available yet", path, absolutePath, originalPath, new HashSet<>(), timeStamp, timeStamp);
     }
 
     public void updateLastModified() {
