@@ -230,7 +230,22 @@ class ApplicationModelTest {
         assertNull(model.getSelectedDocumentProperty().get());
         assertNull(model.getSelectedDocumentNameProperty().get());
         assertEquals("", model.getDescriptionProperty().get());
+        assertEquals("", model.getDocumentDateCreatedProperty().get());
+        assertEquals("", model.getDocumentDateLastModifiedProperty().get());
         assertTrue(model.getTagsProperty().isEmpty());
+    }
+
+    @Test
+    void setSelectedDocument_setsDateProperties() {
+        var entry = createTestEntry("test.pdf", "Description");
+        entry.setDateCreated(LocalDateTime.of(2024, 6, 15, 14, 30));
+        entry.setDateLastModified(LocalDateTime.of(2024, 12, 25, 9, 0));
+        model.getDocumentsList().add(entry);
+
+        model.setSelectedDocument(entry);
+
+        assertEquals("Jun 15, 2024 at 14:30", model.getDocumentDateCreatedProperty().get());
+        assertEquals("Dec 25, 2024 at 09:00", model.getDocumentDateLastModifiedProperty().get());
     }
 
     private ArchiveEntry createTestEntry(String name, String summary) {
