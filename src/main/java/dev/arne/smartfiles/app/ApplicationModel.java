@@ -101,6 +101,14 @@ public class ApplicationModel {
         if (selectedDocument != null) {
             selectedDocument.setSummary(description);
             refreshDocumentInList(selectedDocument);
+            refreshDocumentDateLastModified();
+        }
+    }
+
+    private void refreshDocumentDateLastModified() {
+        var selectedDocument = selectedDocumentProperty.get();
+        if (selectedDocument != null) {
+            documentDateLastModifiedProperty.setValue(selectedDocument.getDateLastModified().format(DATE_FORMATTER));
         }
     }
 
