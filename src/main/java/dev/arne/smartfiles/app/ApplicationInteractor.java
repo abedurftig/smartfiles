@@ -1,7 +1,6 @@
 package dev.arne.smartfiles.app;
 
 import dev.arne.smartfiles.core.events.*;
-import javafx.application.Platform;
 import org.springframework.context.ApplicationListener;
 
 import java.time.format.DateTimeFormatter;
@@ -11,9 +10,15 @@ public class ApplicationInteractor implements ApplicationListener<SmartFilesEven
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy 'at' HH:mm");
 
     private final ApplicationModel model;
+    private final FxScheduler scheduler;
 
     public ApplicationInteractor(ApplicationModel model) {
+        this(model, FxScheduler.platform());
+    }
+
+    public ApplicationInteractor(ApplicationModel model, FxScheduler scheduler) {
         this.model = model;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -32,33 +37,33 @@ public class ApplicationInteractor implements ApplicationListener<SmartFilesEven
     }
 
     private void handleArchiveLastModifiedUpdatedEvent(ArchiveLastModifiedUpdatedEvent e) {
-        Platform.runLater(() -> model.getArchiveDateLastModifiedProperty().set(e.getLastModified().format(DATE_FORMATTER)));
+        scheduler.runLater(() -> model.getArchiveDateLastModifiedProperty().set(e.getLastModified().format(DATE_FORMATTER)));
     }
 
     private void handleDocumentDeletedEvent(DocumentDeletedEvent e) {
-        Platform.runLater(() -> model.removeDocument(e.getDocumentId()));
+        scheduler.runLater(() -> model.removeDocument(e.getDocumentId()));
     }
 
     private void handleAllTagsUpdatedEvent(AllTagsUpdatedEvent e) {
-        Platform.runLater(() -> model.setAllTags(e.getAllTags()));
+        scheduler.runLater(() -> model.setAllTags(e.getAllTags()));
     }
 
     private void handleTagAddedEvent(TagAddedEvent e) {
     }
 
     private void handleDocumentTagAddedEvent(DocumentTagAddedEvent e) {
-        Platform.runLater(() -> model.updateDocumentTags());
+        scheduler.runLater(() -> model.updateDocumentTags());
     }
 
     private void handleDocumentDescriptionUpdatedEvent(DocumentDescriptionUpdatedEvent e) {
-        Platform.runLater(() -> model.updateDescription(e.getDescription()));
+        scheduler.runLater(() -> model.updateDescription(e.getDescription()));
     }
 
     private void handleLightThemeActivatedSettingsChangedEvent(LightThemeActivatedSettingChangedEvent e) {
-        Platform.runLater(() -> model.setLightModeActivated(e.isLightThemeActive()));
+        scheduler.runLater(() -> model.setLightModeActivated(e.isLightThemeActive()));
     }
 
     private void handleArchiveEntryAddedEvent(ArchiveEntryAddedEvent e) {
-        Platform.runLater(() -> model.addDocumentFromArchiveEntry(e.getArchiveEntry()));
+        scheduler.runLater(() -> model.addDocumentFromArchiveEntry(e.getArchiveEntry()));
     }
 }
