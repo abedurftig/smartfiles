@@ -87,6 +87,7 @@ public class ArchiveServiceImpl implements ArchiveService, ApplicationListener<C
         var entry = archive.getArchiveEntries().get(selectedDocumentId);
         var newTag = new Tag(text);
         entry.getTags().add(newTag);
+        entry.updateLastModified();
         publisher.publishEvent(new DocumentTagAddedEvent(newTag, selectedDocumentId));
         publisher.publishEvent(new AllTagsUpdatedEvent(getAllUniqueTags()));
         saveArchiveAndPublishUpdate();

@@ -93,6 +93,7 @@ public class ApplicationModel {
     public void updateDocumentTags() {
         tagsProperty.removeIf(_ -> true);
         tagsProperty.addAll(selectedDocumentProperty.get().getTags());
+        refreshDocumentDateLastModified();
     }
 
     public void updateDescription(String description) {
