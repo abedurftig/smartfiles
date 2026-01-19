@@ -29,7 +29,18 @@
       "Bash(bd dep:*)",
       "Bash(bd close:*)",
       "Bash(bd sync:*)",
-      "Bash(bd stats:*)"
+      "Bash(bd stats:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr create --title \"Fix missing Platform.runLater in event handlers\" --base main --body \"$\\(cat <<''EOF''\n## Summary\n- Wrapped all model updates in `Platform.runLater\\(\\)` to ensure UI updates happen on the JavaFX Application Thread\n- Fixed handlers: `handleDocumentTagAddedEvent`, `handleArchiveEntryAddedEvent`, `handleLightThemeActivatedSettingsChangedEvent`\n\n## Issue\nFixes smartfiles-vap\n\n## Test plan\n- [x] All 51 existing tests pass\n- [ ] Manual testing: verify UI updates work correctly when adding documents and tags\n\n🤖 Generated with [Claude Code]\\(https://claude.ai/code\\)\nEOF\n\\)\")",
+      "Bash(gh pr checks:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git pull:*)",
+      "Bash(gh pr create --title \"Fix immutable Set bug in ArchiveEntry factory method\" --base main --body \"$\\(cat <<''EOF''\n## Summary\n- Changed `Set.of\\(\\)` to `new HashSet<>\\(\\)` in `ArchiveEntry.of\\(\\)` factory method\n- This allows tags to be added after ArchiveEntry creation without throwing `UnsupportedOperationException`\n\n## Issue\nFixes smartfiles-412\n\n## Test plan\n- [x] All 51 existing tests pass\n\n🤖 Generated with [Claude Code]\\(https://claude.ai/code\\)\nEOF\n\\)\")",
+      "Bash(gh pr create --title \"Fix PDDocument memory leak by implementing proper resource cleanup\" --base main --body \"$\\(cat <<''EOF''\n## Summary\n- Made `PdfImageRenderer` implement `Closeable` with `close\\(\\)` method that releases PDDocument resources\n- `DocumentView` now closes the previous renderer when switching documents\n- `DocumentView.clear\\(\\)` now closes the current renderer\n- Removed the unbounded renderer cache in favor of tracking only the current renderer\n\n## Issue\nFixes smartfiles-h74\n\n## Test plan\n- [x] All 51 existing tests pass\n- [ ] Manual testing: open multiple PDFs in sequence and verify memory is released\n\n🤖 Generated with [Claude Code]\\(https://claude.ai/code\\)\nEOF\n\\)\")",
+      "Bash(gh pr create:*)",
+      "Bash(ls:*)",
+      "Bash(mvn clean test:*)"
     ]
   },
   "enabledPlugins": {
