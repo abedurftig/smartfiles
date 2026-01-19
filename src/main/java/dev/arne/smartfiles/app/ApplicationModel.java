@@ -11,6 +11,7 @@ import javafx.collections.transformation.FilteredList;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -19,7 +20,11 @@ import java.util.UUID;
 @Setter
 public class ApplicationModel {
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMM d, yyyy 'at' HH:mm");
+
     private final StringProperty selectedDocumentNameProperty = new SimpleStringProperty(null);
+    private final StringProperty documentDateCreatedProperty = new SimpleStringProperty("");
+    private final StringProperty documentDateLastModifiedProperty = new SimpleStringProperty("");
     private final BooleanProperty lightModeActivated = new SimpleBooleanProperty(false);
     private final ObservableList<ArchiveEntry> documentsList = FXCollections.observableArrayList();
     private final FilteredList<ArchiveEntry> filteredDocuments = new FilteredList<>(documentsList, _ -> true);
@@ -80,12 +85,15 @@ public class ApplicationModel {
         selectedDocumentProperty.setValue(selectedDocument);
         selectedDocumentNameProperty.setValue(selectedDocument.getName());
         descriptionProperty.setValue(selectedDocument.getSummary());
+        documentDateCreatedProperty.setValue(selectedDocument.getDateCreated().format(DATE_FORMATTER));
+        documentDateLastModifiedProperty.setValue(selectedDocument.getDateLastModified().format(DATE_FORMATTER));
         updateDocumentTags();
     }
 
     public void updateDocumentTags() {
         tagsProperty.removeIf(_ -> true);
         tagsProperty.addAll(selectedDocumentProperty.get().getTags());
+        refreshDocumentDateLastModified();
     }
 
     public void updateDescription(String description) {
@@ -94,6 +102,14 @@ public class ApplicationModel {
         if (selectedDocument != null) {
             selectedDocument.setSummary(description);
             refreshDocumentInList(selectedDocument);
+            refreshDocumentDateLastModified();
+        }
+    }
+
+    private void refreshDocumentDateLastModified() {
+        var selectedDocument = selectedDocumentProperty.get();
+        if (selectedDocument != null) {
+            documentDateLastModifiedProperty.setValue(selectedDocument.getDateLastModified().format(DATE_FORMATTER));
         }
     }
 
@@ -136,6 +152,8 @@ public class ApplicationModel {
         selectedDocumentProperty.setValue(null);
         selectedDocumentNameProperty.setValue(null);
         descriptionProperty.setValue("");
+        documentDateCreatedProperty.setValue("");
+        documentDateLastModifiedProperty.setValue("");
         tagsProperty.clear();
     }
 }

@@ -255,6 +255,16 @@ public class ApplicationViewBuilder implements Builder<Region> {
 
         vBox.getChildren().add(createAreaLabel("Document details"));
 
+        var dateCreatedLabel = new Label();
+        dateCreatedLabel.textProperty().bind(model.getDocumentDateCreatedProperty().map(d -> d.isEmpty() ? "" : "Created: " + d));
+        dateCreatedLabel.getStyleClass().add("sf-footer-label");
+        vBox.getChildren().add(dateCreatedLabel);
+
+        var dateModifiedLabel = new Label();
+        dateModifiedLabel.textProperty().bind(model.getDocumentDateLastModifiedProperty().map(d -> d.isEmpty() ? "" : "Modified: " + d));
+        dateModifiedLabel.getStyleClass().add("sf-footer-label");
+        vBox.getChildren().add(dateModifiedLabel);
+
         descriptionField = new TextField();
         descriptionField.setPromptText("Click to add description");
         descriptionField.textProperty().bindBidirectional(model.getDescriptionProperty());
